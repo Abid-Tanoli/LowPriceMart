@@ -1,7 +1,7 @@
 import React, { useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { useNavigate } from "react-router-dom";
-import { getProfileThunk, logout } from "../../hooks/auth/authSlice";
+import { getProfileThunk, logout } from "../hooks/auth/authSlice";
 
 const ProfilePage = () => {
   const { user, loading } = useSelector((state) => state.auth);

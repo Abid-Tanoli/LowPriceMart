@@ -1,8 +1,8 @@
 import React, { useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import CartItem from "../../components/CartItems";
-import { useCart } from "../../context/CartContext";
-import { useQtyTotals } from "../../context/QtyAndTotalsContext";
+import CartItem from "../components/CartItems";
+import { useCart } from "../context/CartContext";
+import { useQtyTotals } from "../context/QtyAndTotalsContext";
 
 const Cart = () => {
   const navigate = useNavigate();

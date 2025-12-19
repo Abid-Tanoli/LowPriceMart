@@ -6,19 +6,21 @@ import morgan from "morgan";
 import mongoose from "mongoose";
 import errorHandler from "./middleware/errorHandler.js";
 
-import authRoutes from "./routes/authRoutes.js";
-import productRoutes from "./routes/productRoutes.js";
-import cartRoutes from "./routes/cartRoutes.js";
-import orderRoutes from "./routes/orderRoutes.js";
+// Routes
+import adminRoutes from "./routes/adminRoutes.js";
+import productsRoute from "./routes/productsRoute.js";
+import dashboardRoute from "./routes/dashboard.js";
 
 dotenv.config();
 const app = express();
 
+// MongoDB Connection
 mongoose
   .connect(process.env.MONGO_URI)
   .then(() => console.log("✅ MongoDB Connected"))
   .catch((err) => console.error("❌ DB Connection Failed:", err.message));
 
+// Middleware
 app.use(helmet());
 app.use(express.json());
 app.use(
@@ -29,16 +31,18 @@ app.use(
 );
 app.use(morgan("dev"));
 
-app.use("/api/auth", authRoutes);
-app.use("/api/products", productRoutes);
-app.use("/api/cart", cartRoutes);
-app.use("/api/orders", orderRoutes);
+// Routes
+app.use("/api/admin", adminRoutes);
+app.use("/api/products", productsRoute);
+app.use("/api/dashboard", dashboardRoute);
 
 app.use(errorHandler);
 
+// Root
 app.get("/", (req, res) => {
-  res.send("🚀 LowPriceMart Backend is Running");
+  res.send("🚀 Admin Backend is Running");
 });
 
-const PORT = process.env.PORT || 5000;
-app.listen(PORT, () => console.log(`🚀 Server running on port ${PORT}`));
+// Start Server
+const PORT = process.env.PORT_ADMIN || 5001;
+app.listen(PORT, () => console.log(`🚀 Admin Server running on port ${PORT}`));

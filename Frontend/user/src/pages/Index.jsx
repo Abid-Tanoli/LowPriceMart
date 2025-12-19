@@ -1,8 +1,8 @@
 import React, { useState, useEffect } from "react";
 import { Carousel } from "flowbite-react";
-import ProductCard from "../../components/ProductCard";
-import { getProducts } from "../../services/productApi";
-import Pagination from "../../components/global/Pagination";
+import ProductCard from "../components/ProductCard";
+import { getProducts } from "../services/productApi";
+import Pagination from "../components/global/Pagination";
 
 const Home = () => {
   const [products, setProducts] = useState([]);

@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
-import api from "../../services/api";
-import { getOrders } from "../../services/orderApi";
+import api from "../services/api";
+import { getOrders } from "../services/orderApi";
 import { Link } from "react-router-dom";
 
 const OrderList = () => {

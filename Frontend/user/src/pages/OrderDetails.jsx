@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { useParams, Link } from "react-router-dom";
-import { getOrderById } from "../../services/orderApi";
+import { getOrderById } from "../services/orderApi";
 
 const steps = [
   { id: 1, title: "Order Placed" },

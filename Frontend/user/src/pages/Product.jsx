@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
-import ProductCard from "../../components/ProductCard";
-import { getProducts } from "../../services/productApi";
-import Pagination from "../../components/global/Pagination";
+import ProductCard from "../components/ProductCard";
+import { getProducts } from "../services/productApi";
+import Pagination from "../components/global/Pagination";
 
 const Product = () => {
   const [products, setProducts] = useState([]);

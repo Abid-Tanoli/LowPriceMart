@@ -1,8 +1,8 @@
 import React, { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { ShoppingCart, ArrowLeft } from "lucide-react";
-import { getProductById, getRelatedProducts } from "../../services/productApi";
-import { addToCart } from "../../services/cartApi";
+import { getProductById, getRelatedProducts } from "../services/productApi";
+import { addToCart } from "../services/cartApi";
 
 const ProductDetails = () => {
   const { id } = useParams();

@@ -1,19 +1,27 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { useNavigate } from "react-router-dom";
-import { registerUserThunk } from "../../hooks/auth/authSlice";
+import { loginUserThunk } from "../../hooks/authSlice";
 
-const Register = () => {
-  const [form, setForm] = useState({ name: "", email: "", password: "" });
+const Login = () => {
+  const [form, setForm] = useState({ email: "", password: "" });
   const dispatch = useDispatch();
+  const { user, isAuthenticatic } = useSelector((state) => state.auth);
   const navigate = useNavigate();
   const { loading, error } = useSelector((state) => state.auth);
+
+  useEffect(() => {
+    if(isAuthenticatic && user) {
+      navigate("/Index")
+    }
+  }, [isAuthenticatic, user, navigate]);
+
 
   const handleChange = (e) => setForm({ ...form, [e.target.name]: e.target.value });
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    dispatch(registerUserThunk(form)).then((res) => {
+    dispatch(loginUserThunk(form)).then((res) => {
       if (res.meta.requestStatus === "fulfilled") navigate("/");
     });
   };
@@ -24,16 +32,8 @@ const Register = () => {
         onSubmit={handleSubmit}
         className="bg-white p-8 rounded-2xl shadow-md w-80"
       >
-        <h2 className="text-xl font-bold mb-4 text-center">Register</h2>
+        <h2 className="text-xl font-bold mb-4 text-center">Login</h2>
 
-        <input
-          name="name"
-          onChange={handleChange}
-          value={form.name}
-          placeholder="Name"
-          className="border p-2 w-full mb-3 rounded"
-          required
-        />
         <input
           name="email"
           onChange={handleChange}
@@ -56,15 +56,15 @@ const Register = () => {
 
         <button
           disabled={loading}
-          className="bg-blue-500 text-white w-full py-2 rounded hover:bg-blue-600"
+          className="bg-green-500 text-white w-full py-2 rounded hover:bg-green-600"
         >
-          {loading ? "Registering..." : "Register"}
+          {loading ? "Logging in..." : "Login"}
         </button>
 
         <p className="text-center mt-3 text-sm">
-          Already have an account?{" "}
-          <a href="/login" className="text-blue-600 hover:underline">
-            Login
+          Don’t have an account?{" "}
+          <a href="/register" className="text-blue-600 hover:underline">
+            Register
           </a>
         </p>
       </form>
@@ -72,4 +72,4 @@ const Register = () => {
   );
 };
 
-export default Register;
+export default Login;

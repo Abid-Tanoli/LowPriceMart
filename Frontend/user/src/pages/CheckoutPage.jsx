@@ -1,9 +1,9 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import { createOrder } from "../../services/orderApi";
-import CartItem from "../../components/CartItems";
-import { useCart } from "../../context/CartContext";
-import { useQtyTotals } from "../../context/QtyAndTotalsContext";
+import { createOrder } from "../services/orderApi";
+import CartItem from "../components/CartItems";
+import { useCart } from "../context/CartContext";
+import { useQtyTotals } from "../context/QtyAndTotalsContext";
 
 const CheckoutPage = () => {
   const navigate = useNavigate();
