@@ -3,7 +3,7 @@ import { Navigate } from "react-router-dom";
 import { useSelector } from "react-redux";
 
 const AdminRoute = ({ children }) => {
-  const user = useSelector((state) => state.user.userInfo);
+  const user = useSelector((state) => state.auth?.userInfo);
   const token = localStorage.getItem("token");
 
   if (!token || !user || user.role !== "admin") {

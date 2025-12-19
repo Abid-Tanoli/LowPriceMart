@@ -5,7 +5,7 @@ import {
   deleteProduct,
   getProducts,
   getProductById,
-} from "../controllers/productController.js";
+} from "../../user/controllers/adminControllers/productController.js";
 import { protect } from "../middleware/authMiddleware.js";
 import { admin } from "../middleware/adminMiddleware.js";
 

@@ -4,7 +4,7 @@ import { useSelector } from "react-redux"; // <- to get user from auth slice
 
 const CartContext = createContext();
 
-export const CartProvider = ({ children }) => {
+const CartProvider = ({ children }) => {
   const { user } = useSelector((state) => state.auth); // Get logged-in user
   const [cart, setCart] = useState([]);
 
@@ -74,5 +74,7 @@ export const CartProvider = ({ children }) => {
     </CartContext.Provider>
   );
 };
+
+export default CartProvider
 
 export const useCart = () => useContext(CartContext);

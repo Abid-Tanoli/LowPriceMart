@@ -1,7 +1,7 @@
-import Product from "../models/Product.js";
-import Order from "../models/Order.js";
-import Cart from "../models/Cart.js";
-import { sendEmail } from "../services/emailService.js";
+import Product from "../../models/Product.js";
+import Order from "../../models/Order.js";
+import Cart from "../../models/Cart.js";
+import { sendEmail } from "../../services/emailService.js";
 
 export const createOrder = async (req, res) => {
   try {

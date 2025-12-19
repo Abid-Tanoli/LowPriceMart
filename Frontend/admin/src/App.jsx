@@ -1,5 +1,5 @@
 import React from "react";
-import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
+import { BrowserRouter, Routes, Route } from "react-router-dom";
 
 import Dashboard from "./pages/Dashboard";
 import Users from "./pages/Users";
@@ -13,11 +13,11 @@ import PublicRoute from "./routes/PublicRoute";
 
 const App = () => {
   return (
-    <Router>
+    <BrowserRouter>
       <Routes>
         <Route path="/login" element={<PublicRoute><Login /></PublicRoute>}/>
 
-        <Route path="/dashboard" element={<AdminRoute><Dashboard /></AdminRoute>}/>
+        <Route path="/" element={<AdminRoute><Dashboard /></AdminRoute>}/>
 
         <Route path="/users" element={<AdminRoute><Users /></AdminRoute>}/>
 
@@ -25,7 +25,7 @@ const App = () => {
 
         <Route path="/products" element={<AdminRoute><Products /></AdminRoute>}/>
      </Routes>
-   </Router>
+   </BrowserRouter>
   );
 };
 

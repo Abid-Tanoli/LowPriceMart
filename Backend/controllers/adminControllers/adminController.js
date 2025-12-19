@@ -1,6 +1,6 @@
-import User from '../models/User';
-import Order from '../models/Order';
-import Product from '../models/Product';
+import User from '../../models/userModels/User';
+import Order from '../../models/userModels/Order';
+import Product from '../../models/userModels/Product';
 
 export const getAllUsers = async () => {
   const users = await User.find({});
