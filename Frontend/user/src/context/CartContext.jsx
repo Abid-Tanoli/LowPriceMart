@@ -1,15 +1,15 @@
 import React, { createContext, useState, useEffect, useContext } from "react";
 import { getCart, addToCart as addToCartApi, removeFromCart as removeFromCartApi, clearCart as clearCartApi } from "../services/cartApi";
-import { useSelector } from "react-redux"; // <- to get user from auth slice
+import { useSelector } from "react-redux";
 
 const CartContext = createContext();
 
 const CartProvider = ({ children }) => {
-  const { user } = useSelector((state) => state.auth); // Get logged-in user
+  const { user } = useSelector((state) => state.auth);
   const [cart, setCart] = useState([]);
 
   useEffect(() => {
-    if (!user) return; // Only fetch cart if user is logged in
+    if (!user) return; 
     fetchCart();
   }, [user]);
 

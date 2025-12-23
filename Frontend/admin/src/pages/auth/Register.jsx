@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { useNavigate } from "react-router-dom";
-import { registerUserThunk } from "../../hooks/auth/authSlice";
+import { registerUserThunk } from "../../hooks/authSlice";
 
 const Register = () => {
   const [form, setForm] = useState({ name: "", email: "", password: "" });

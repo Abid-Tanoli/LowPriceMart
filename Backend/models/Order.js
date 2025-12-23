@@ -14,6 +14,8 @@ const orderSchema = new mongoose.Schema({
   shippingAddress: { address: String, city: String, postalCode: String, country: String },
   paymentMethod: String,
   itemsPrice: Number,
+  taxPrice: Number,
+  shippingPrice: Number,
   totalPrice: Number,
   isPaid: { type: Boolean, default: false },
   paidAt: Date,

@@ -1,5 +1,5 @@
-import { paginate } from "../../helpers/pagination.js";
-import Product from "../../models/Product.js";
+import { paginate } from "../helpers/pagination.js";
+import Product from "../models/Product.js";
 
 export const getProducts = async (req, res) => {
   try {

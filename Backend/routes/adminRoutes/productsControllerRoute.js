@@ -1,17 +1,17 @@
 import express from "express";
+
 import {
+  getProducts,
+  getProductById,
   createProduct,
   updateProduct,
   deleteProduct,
-  getProducts,
-  getProductById,
-} from "../../user/controllers/adminControllers/productController.js";
-import { protect } from "../middleware/authMiddleware.js";
-import { admin } from "../middleware/adminMiddleware.js";
+} from "../../controllers/userProductController.js";
+import { admin } from "../../middleware/adminMiddleware.js";
 
 const router = express.Router();
 
-router.use(protect, admin);
+router.use(admin);
 
 router.get("/", getProducts);
 router.get("/:id", getProductById);

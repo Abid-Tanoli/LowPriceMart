@@ -1,14 +1,14 @@
 import express from "express";
-import { protect } from "../../../admin/middleware/authMiddleware.js";
-import { admin } from "../../../admin/middleware/adminMiddleware.js";
-import { getAllUsers, getAllOrders, deleteProduct } from "../../controllers/adminControllers/adminController.js";
+import { admin} from "../../middleware/adminMiddleware.js";
+import { protect } from "../../middleware/authMiddleware.js";
+import { getAllUsers, getAllOrders, deleteProduct } from "../../controllers/adminController.js";
 
 const router = express.Router();
 
-router.use(protect, admin);
+router.use(admin);
 
-router.get("/users", getAllUsers);
-router.get("/orders", getAllOrders);
-router.delete("/product/:id", deleteProduct);
+router.get("/users", protect, admin, getAllUsers);
+router.get("/orders", protect, admin, getAllOrders);
+router.delete("/product/:id", protect, admin, deleteProduct);
 
 export default router;

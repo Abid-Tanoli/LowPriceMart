@@ -1,44 +1,52 @@
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
 import { registerUser, loginUser, getProfile } from "../services/auth";
 
-const userInfo = JSON.parse(localStorage.getItem("userInfo")) || null;
+const token = localStorage.getItem("token");
+const userInfo = localStorage.getItem("userInfo")
+  ? JSON.parse(localStorage.getItem("userInfo"))
+  : null;
+
+export const initializeUser = createAsyncThunk(
+  "auth/initializeUser",
+  async (_, thunkAPI) => {
+    try {
+      if (!token) return null;
+      const data = await getProfile();      
+      localStorage.setItem("userInfo", JSON.stringify(data));
+      return data;
+    } catch (err) {
+      localStorage.removeItem("token");
+      localStorage.removeItem("userInfo");
+      return thunkAPI.rejectWithValue(err.response?.data?.message || "Session expired");
+    }
+  }
+);
 
 export const registerUserThunk = createAsyncThunk(
   "auth/register",
   async (userData, thunkAPI) => {
     try {
       const data = await registerUser(userData);
-      localStorage.setItem("userInfo", JSON.stringify(data));
       localStorage.setItem("token", data.token);
-      return data;
+      localStorage.setItem("userInfo", JSON.stringify(data.user));
+      return data.user; // includes role
     } catch (err) {
       return thunkAPI.rejectWithValue(err.response?.data?.message || "Registration failed");
     }
   }
 );
 
+// ================== LOGIN USER ==================
 export const loginUserThunk = createAsyncThunk(
   "auth/login",
   async (credentials, thunkAPI) => {
     try {
       const data = await loginUser(credentials);
-      localStorage.setItem("userInfo", JSON.stringify(data));
       localStorage.setItem("token", data.token);
-      return data;
+      localStorage.setItem("userInfo", JSON.stringify(data.user));
+      return data.user; 
     } catch (err) {
       return thunkAPI.rejectWithValue(err.response?.data?.message || "Login failed");
-    }
-  }
-);
-
-export const getProfileThunk = createAsyncThunk(
-  "auth/profile",
-  async (_, thunkAPI) => {
-    try {
-      const data = await getProfile();
-      return data;
-    } catch (err) {
-      return thunkAPI.rejectWithValue(err.response?.data?.message || "Failed to fetch profile");
     }
   }
 );
@@ -46,25 +54,38 @@ export const getProfileThunk = createAsyncThunk(
 const authSlice = createSlice({
   name: "auth",
   initialState: {
-    user: userInfo,
+    userInfo,
     loading: false,
     error: null,
   },
   reducers: {
     logout: (state) => {
-      state.user = null;
-      localStorage.removeItem("userInfo");
+      state.userInfo = null;
+      state.error = null;
       localStorage.removeItem("token");
+      localStorage.removeItem("userInfo");
     },
   },
   extraReducers: (builder) => {
     builder
-      .addCase(registerUserThunk.pending, (state) => {
-        state.loading = true;
+     
+      .addCase(initializeUser.pending, (state) => { state.loading = true; })
+      .addCase(initializeUser.fulfilled, (state, action) => {
+        state.loading = false;
+        state.userInfo = action.payload;
+        state.error = null;
       })
+      .addCase(initializeUser.rejected, (state, action) => {
+        state.loading = false;
+        state.userInfo = null;
+        state.error = action.payload;
+      })
+
+     
+      .addCase(registerUserThunk.pending, (state) => { state.loading = true; })
       .addCase(registerUserThunk.fulfilled, (state, action) => {
         state.loading = false;
-        state.user = action.payload;
+        state.userInfo = action.payload;
         state.error = null;
       })
       .addCase(registerUserThunk.rejected, (state, action) => {
@@ -72,32 +93,16 @@ const authSlice = createSlice({
         state.error = action.payload;
       })
 
-      .addCase(loginUserThunk.pending, (state) => {
-        state.loading = true;
-      })
+     
+      .addCase(loginUserThunk.pending, (state) => { state.loading = true; })
       .addCase(loginUserThunk.fulfilled, (state, action) => {
         state.loading = false;
-        state.user = action.payload;
+        state.userInfo = action.payload;
         state.error = null;
       })
       .addCase(loginUserThunk.rejected, (state, action) => {
         state.loading = false;
         state.error = action.payload;
-      })
-
-      .addCase(getProfileThunk.pending, (state) => {
-        state.loading = true;
-      })
-      .addCase(getProfileThunk.fulfilled, (state, action) => {
-        state.loading = false;
-        state.user = { ...state.user, ...action.payload };
-      })
-      .addCase(getProfileThunk.rejected, (state, action) => {
-        state.loading = false;
-        state.user = null;
-        state.error = action.payload;
-        localStorage.removeItem("userInfo");
-        localStorage.removeItem("token");
       });
   },
 });
