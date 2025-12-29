@@ -12,7 +12,7 @@ const Login = () => {
 
   useEffect(() => {
     if(isAuthenticatic && user) {
-      navigate("/Index")
+      navigate("/admin")
     }
   }, [isAuthenticatic, user, navigate]);
 
@@ -22,7 +22,7 @@ const Login = () => {
   const handleSubmit = (e) => {
     e.preventDefault();
     dispatch(loginUserThunk(form)).then((res) => {
-      if (res.meta.requestStatus === "fulfilled") navigate("/");
+      if (res.meta.requestStatus === "fulfilled") navigate("/admin");
     });
   };
 

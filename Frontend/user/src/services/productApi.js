@@ -10,7 +10,6 @@ export const getProducts = async (page = 1, limit = 10, category = "") => {
 
     const { data } = await axiosInstance.get(url);
 
-    // Check if pagination data exists
     if (!data || !data.docs) {
       console.error("Invalid response format:", data);
       return {
@@ -21,19 +20,17 @@ export const getProducts = async (page = 1, limit = 10, category = "") => {
       };
     }
 
-    // Normalize stock: countInStock always exists and is a number
     const normalizedData = {
       ...data,
       docs: data.docs.map((product) => ({
         ...product,
-        countInStock: Number(product.stock ?? 0), // Use stock from backend
+        countInStock: Number(product.stock ?? 0), 
       })),
     };
 
     return normalizedData;
   } catch (error) {
     console.error("Error fetching products:", error);
-    // Return empty result on error
     return {
       docs: [],
       totalPages: 1,
@@ -46,7 +43,6 @@ export const getProducts = async (page = 1, limit = 10, category = "") => {
 export const getProductById = async (id) => {
   try {
     const { data } = await axiosInstance.get(`/products/${id}`);
-    // Normalize stock field
     return {
       ...data,
       countInStock: Number(data.stock ?? 0)

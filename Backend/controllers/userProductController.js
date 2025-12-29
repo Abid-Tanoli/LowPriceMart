@@ -1,19 +1,14 @@
 import { paginate } from "../helpers/pagination.js";
 import Product from "../models/Product.js";
+import cloudinary from "../config/cloudinary.js";
 
-export const getProducts = async (req, res) => {
+export const getAllProducts = async (req, res) => {
   try {
     const { page = 1, limit = 10, category, search } = req.query;
 
     const query = {};
-
-    if (category) {
-      query.category = category;
-    }
-
-    if (search) {
-      query.name = { $regex: search, $options: "i" }; 
-    }
+    if (category) query.category = category;
+    if (search) query.name = { $regex: search, $options: "i" };
 
     const result = await paginate(Product, query, {
       page,
@@ -39,33 +34,30 @@ export const getProductById = async (req, res) => {
   }
 };
 
-export const getRelatedProducts = async (req, res) => {
-  try {
-    const product = await Product.findById(req.params.id);
-    if (!product) return res.status(404).json({ message: "Product not found" });
-
-    const related = await Product.find({
-      category: product.category,
-      _id: { $ne: product._id },
-    })
-      .limit(5)
-      .select("name price category image description stock");
-
-    res.status(200).json(related);
-  } catch (err) {
-    res.status(500).json({ message: "Server error" });
-  }
-};
-
 export const createProduct = async (req, res) => {
   try {
-    const { name, description, price, category, image, stock } = req.body;
+    let imageUrl = req.body.image || "";
 
-    const product = new Product({ name, description, price, category, image, stock });
+    // If file is uploaded via multer
+    if (req.file?.path) {
+      imageUrl = req.file.path; // multer-storage-cloudinary sets file.path
+    }
+
+    const { name, description, price, category, stock } = req.body;
+
+    const product = new Product({
+      name,
+      description,
+      price,
+      category,
+      stock,
+      image: imageUrl,
+    });
+
     const savedProduct = await product.save();
-
     res.status(201).json(savedProduct);
   } catch (err) {
+    console.error(err);
     res.status(500).json({ message: err.message });
   }
 };
@@ -75,11 +67,15 @@ export const updateProduct = async (req, res) => {
     const product = await Product.findById(req.params.id);
     if (!product) return res.status(404).json({ message: "Product not found" });
 
-    Object.assign(product, req.body);
-    const updated = await product.save();
+    if (req.file?.path) {
+      product.image = req.file.path;
+    }
 
-    res.json(updated);
+    Object.assign(product, req.body);
+    const updatedProduct = await product.save();
+    res.json(updatedProduct);
   } catch (err) {
+    console.error(err);
     res.status(500).json({ message: err.message });
   }
 };

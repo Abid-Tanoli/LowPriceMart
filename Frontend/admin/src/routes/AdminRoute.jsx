@@ -14,12 +14,12 @@ const AdminRoute = ({ children }) => {
     return null; 
   }
 
+
   if (!token || !user || user.role !== "admin") {
     console.log("Redirecting to /login");
     return <Navigate to="/login" replace />;
   }
 
-  // console.log("Access granted");
   return <>{children}</>;
 };
 
