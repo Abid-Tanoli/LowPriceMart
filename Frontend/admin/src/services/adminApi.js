@@ -1,10 +1,13 @@
 import axios from "axios";
 
-const axiosInstance = axios.create({
-  baseURL: "http://localhost:5000/api/admin",
+const adminApi = axios.create({
+  baseURL: "http://localhost:5000/api", 
+  headers: {
+    "Content-Type": "application/json",
+  },
 });
 
-axiosInstance.interceptors.request.use(
+adminApi.interceptors.request.use(
   (config) => {
     const token = localStorage.getItem("token");
     if (token) {
@@ -15,14 +18,17 @@ axiosInstance.interceptors.request.use(
   (error) => Promise.reject(error)
 );
 
-axiosInstance.interceptors.response.use(
+adminApi.interceptors.response.use(
   (response) => response,
   (error) => {
     if (error.response?.status === 401) {
-      console.warn("Unauthorized — redirecting to login...");
+      console.warn("Unauthorized — please login again.");
     }
     return Promise.reject(error);
   }
 );
 
-export default axiosInstance;
+
+export default adminApi;
+
+

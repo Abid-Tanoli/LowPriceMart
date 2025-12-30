@@ -38,7 +38,7 @@ const Dashboard = () => {
             subtitle="Create new product"
             icon="➕"
             color="bg-blue-100 text-blue-600"
-            onClick={() => navigate("/admin/create-product")}
+            onClick={() => navigate("/create-product")}
           />
 
           <QuickAction
@@ -46,7 +46,7 @@ const Dashboard = () => {
             subtitle="Manage orders"
             icon="📦"
             color="bg-green-100 text-green-600"
-            onClick={() => navigate("/admin/orders")}
+            onClick={() => navigate("/orders")}
           />
 
           <QuickAction
@@ -54,7 +54,7 @@ const Dashboard = () => {
             subtitle="User management"
             icon="👤"
             color="bg-purple-100 text-purple-600"
-            onClick={() => navigate("/admin/users")}
+            onClick={() => navigate("/users")}
           />
         </div>
       </div>

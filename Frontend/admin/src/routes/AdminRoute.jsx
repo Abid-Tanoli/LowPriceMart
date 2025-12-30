@@ -17,7 +17,7 @@ const AdminRoute = ({ children }) => {
 
   if (!token || !user || user.role !== "admin") {
     console.log("Redirecting to /login");
-    return <Navigate to="/login" replace />;
+    return <Navigate to="/auth/login" replace />;
   }
 
   return <>{children}</>;

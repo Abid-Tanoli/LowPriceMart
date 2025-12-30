@@ -6,21 +6,24 @@ const Users = () => {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    const fetchUsers = async () => {
-      const token = localStorage.getItem("token");
-      try {
-        const res = await axios.get("/api/auth/users", {
-          headers: { Authorization: `Bearer ${token}` },
-        });
-        setUsers(res.data);
-      } catch (err) {
-        console.error(err);
-      }
-      setLoading(false);
-    };
-    fetchUsers();
-  }, []);
+  const fetchUsers = async () => {
+    const token = localStorage.getItem("token");
+    try {
+      const res = await axios.get("/api/auth/users", {
+        headers: { Authorization: `Bearer ${token}` },
+      });
 
+      const usersArray = Array.isArray(res.data) ? res.data : res.data.users || [];
+      setUsers(usersArray);
+    } catch (err) {
+      console.error("Error fetching users:", err);
+      setUsers([]);
+    }
+    setLoading(false);
+  };
+
+  fetchUsers();
+}, []);
   if (loading) return <p className="text-center py-10 text-xl font-semibold">Loading...</p>;
 
   return (

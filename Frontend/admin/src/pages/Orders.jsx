@@ -13,10 +13,18 @@ const Orders = () => {
         headers: { Authorization: `Bearer ${token}` },
       });
 
-      setOrders(res.data);
-      setLoading(false);
+      // Always make orders an array
+      const ordersArray = Array.isArray(res.data)
+        ? res.data
+        : Array.isArray(res.data.orders)
+        ? res.data.orders
+        : [];
+
+      setOrders(ordersArray);
     } catch (error) {
       console.error("Failed to fetch orders", error);
+      setOrders([]); // fallback
+    } finally {
       setLoading(false);
     }
   };
@@ -27,6 +35,9 @@ const Orders = () => {
 
   if (loading)
     return <p className="text-center py-10 text-xl font-semibold">Loading...</p>;
+
+  if (!orders.length)
+    return <p className="text-center py-10 text-xl font-semibold">No orders found.</p>;
 
   return (
     <div className="p-6">
@@ -46,21 +57,21 @@ const Orders = () => {
           </thead>
 
           <tbody>
-            {orders?.map((order) => (
+            {orders.map((order) => (
               <tr
-                key={order._id}
+                key={order._id || Math.random()}
                 className="border-t hover:bg-gray-50 transition"
               >
-                <td className="p-3 font-medium">{order._id}</td>
+                <td className="p-3 font-medium">{order._id || "N/A"}</td>
 
                 <td className="p-3">
-                  {order.user?.name}  
+                  {order.user?.name || "N/A"}  
                   <br />
-                  <span className="text-sm text-gray-600">{order.user?.email}</span>
+                  <span className="text-sm text-gray-600">{order.user?.email || "N/A"}</span>
                 </td>
 
                 <td className="p-3 font-semibold">
-                  Rs. {order.totalPrice?.toLocaleString()}
+                  Rs. {order.totalPrice?.toLocaleString() || 0}
                 </td>
 
                 <td className="p-3">
@@ -88,7 +99,9 @@ const Orders = () => {
                 </td>
 
                 <td className="p-3">
-                  {new Date(order.createdAt).toLocaleDateString()}
+                  {order.createdAt
+                    ? new Date(order.createdAt).toLocaleDateString()
+                    : "N/A"}
                 </td>
               </tr>
             ))}

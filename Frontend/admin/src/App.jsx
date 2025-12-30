@@ -17,8 +17,8 @@ const App = () => {
     <BrowserRouter>
       <Routes>
 
-        <Route path="/login" element={<PublicRoute><Login /></PublicRoute>} />
-        <Route path="/register" element={<PublicRoute><Register /></PublicRoute>} />
+        <Route path="/auth/login" element={<PublicRoute><Login /></PublicRoute>} />
+        <Route path="/auth/register" element={<PublicRoute><Register /></PublicRoute>} />
 
         <Route path="/" element={ <AdminRoute> <AdminLayout /> </AdminRoute> } >
           <Route index element={<Dashboard />} />
