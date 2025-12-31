@@ -6,24 +6,23 @@ import { loginUserThunk } from "../../hooks/authSlice";
 const Login = () => {
   const [form, setForm] = useState({ email: "", password: "" });
   const dispatch = useDispatch();
-  const { user, isAuthenticatic } = useSelector((state) => state.auth);
   const navigate = useNavigate();
-  const { loading, error } = useSelector((state) => state.auth);
+
+  const { userInfo, loading, error } = useSelector((state) => state.auth);
 
   useEffect(() => {
-    if(isAuthenticatic && user) {
-      navigate("/admin")
+    if (userInfo) {
+      navigate("/");
     }
-  }, [isAuthenticatic, user, navigate]);
+  }, [userInfo, navigate]);
 
-
-  const handleChange = (e) => setForm({ ...form, [e.target.name]: e.target.value });
+  const handleChange = (e) => {
+    setForm({ ...form, [e.target.name]: e.target.value });
+  };
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    dispatch(loginUserThunk(form)).then((res) => {
-      if (res.meta.requestStatus === "fulfilled") navigate("/admin");
-    });
+    dispatch(loginUserThunk(form));
   };
 
   return (
@@ -55,6 +54,7 @@ const Login = () => {
         {error && <p className="text-red-500 text-sm mb-2">{error}</p>}
 
         <button
+          type="submit"
           disabled={loading}
           className="bg-green-500 text-white w-full py-2 rounded hover:bg-green-600"
         >

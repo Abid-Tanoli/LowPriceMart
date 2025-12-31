@@ -1,10 +1,19 @@
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
 import { loginUser, registerUser, getProfile } from "../services/auth";
 
+// ===== Safe JSON parser =====
+const getSafeJSON = (key) => {
+  try {
+    const value = localStorage.getItem(key);
+    return value && value !== "undefined" ? JSON.parse(value) : null;
+  } catch (err) {
+    localStorage.removeItem(key);
+    return null;
+  }
+};
+
 const token = localStorage.getItem("token");
-const userInfo = localStorage.getItem("userInfo")
-  ? JSON.parse(localStorage.getItem("userInfo"))
-  : null;
+const userInfo = getSafeJSON("userInfo");
 
 const initialState = {
   token: token || null,
@@ -18,7 +27,7 @@ export const login = createAsyncThunk("auth/login", async (data, thunkAPI) => {
     const res = await loginUser(data);
     return res;
   } catch (error) {
-    return thunkAPI.rejectWithValue(error.response.data);
+    return thunkAPI.rejectWithValue(error.response?.data || error.message);
   }
 });
 
@@ -29,13 +38,15 @@ export const authSlice = createSlice({
     logout: (state) => {
       state.token = null;
       state.user = null;
-      localStorage.clear();
+      localStorage.removeItem("token");
+      localStorage.removeItem("userInfo");
     },
   },
   extraReducers: (builder) => {
     builder
       .addCase(login.pending, (state) => {
         state.loading = true;
+        state.error = null;
       })
       .addCase(login.fulfilled, (state, action) => {
         state.loading = false;
