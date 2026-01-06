@@ -1,9 +1,16 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
+import toast from "react-hot-toast";
 import { getDashboardStats } from "../services/adminDashboard";
 
 const Dashboard = () => {
-  const [stats, setStats] = useState({});
+  const [stats, setStats] = useState({
+    users: 0,
+    orders: 0,
+    products: 0,
+  });
+  const [loading, setLoading] = useState(true);
+
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -12,12 +19,23 @@ const Dashboard = () => {
         const data = await getDashboardStats();
         setStats(data);
       } catch (error) {
-        console.error("Dashboard error", error);
+        console.error("Dashboard error:", error);
+        toast.error("Failed to load dashboard stats");
+      } finally {
+        setLoading(false);
       }
     };
 
     loadStats();
   }, []);
+
+  if (loading) {
+    return (
+      <div className="p-6 text-lg font-semibold">
+        Loading dashboard...
+      </div>
+    );
+  }
 
   return (
     <div className="p-6">
@@ -63,11 +81,12 @@ const Dashboard = () => {
 };
 
 const Stat = ({ title, value, icon }) => (
-  <div className="bg-white p-6 rounded-lg shadow">
-    <p className="text-gray-500">{title}</p>
-    <h2 className="text-2xl font-bold">
-      {icon} {value ?? "—"}
-    </h2>
+  <div className="bg-white p-6 rounded-lg shadow flex items-center gap-4">
+    <div className="text-3xl">{icon}</div>
+    <div>
+      <p className="text-gray-500">{title}</p>
+      <h2 className="text-2xl font-bold">{value ?? "—"}</h2>
+    </div>
   </div>
 );
 
@@ -76,10 +95,11 @@ const QuickAction = ({ title, subtitle, icon, color, onClick }) => (
     onClick={onClick}
     className="flex items-center gap-4 p-4 rounded-lg border cursor-pointer hover:shadow-md transition"
   >
-    <div className={`w-12 h-12 rounded-full flex items-center justify-center ${color}`}>
+    <div
+      className={`w-12 h-12 rounded-full flex items-center justify-center ${color}`}
+    >
       <span className="text-xl">{icon}</span>
     </div>
-
     <div>
       <h3 className="font-semibold">{title}</h3>
       <p className="text-sm text-gray-500">{subtitle}</p>

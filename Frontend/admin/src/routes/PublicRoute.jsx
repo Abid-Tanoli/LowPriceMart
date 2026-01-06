@@ -3,10 +3,8 @@ import { useSelector } from "react-redux";
 import { Navigate } from "react-router-dom";
 
 const PublicRoute = ({ children }) => {
-  const { user } = useSelector((state) => state.auth);
-  if (user) {
-    return <Navigate to="/" replace />;
-  }
+  const { userInfo } = useSelector((state) => state.auth);
+  if (userInfo) return <Navigate to="/" replace />;
   return children;
 };
 

@@ -1,48 +1,32 @@
-import React, { useEffect, useState } from "react";
-import axios from "axios";
+import { useEffect, useState } from "react";
+import adminApi from "../services/adminApi";
 
 const Orders = () => {
   const [orders, setOrders] = useState([]);
   const [loading, setLoading] = useState(true);
 
-  const fetchOrders = async () => {
-    try {
-      const token = localStorage.getItem("token");
-
-      const res = await axios.get("/api/orders", {
-        headers: { Authorization: `Bearer ${token}` },
-      });
-
-      // Always make orders an array
-      const ordersArray = Array.isArray(res.data)
-        ? res.data
-        : Array.isArray(res.data.orders)
-        ? res.data.orders
-        : [];
-
-      setOrders(ordersArray);
-    } catch (error) {
-      console.error("Failed to fetch orders", error);
-      setOrders([]); // fallback
-    } finally {
-      setLoading(false);
-    }
-  };
-
   useEffect(() => {
+    const fetchOrders = async () => {
+      try {
+        const { data } = await adminApi.get("/admin/orders");
+        const ordersArray = Array.isArray(data) ? data : data.orders || [];
+        setOrders(ordersArray);
+      } catch (err) {
+        console.error(err);
+        setOrders([]);
+      } finally {
+        setLoading(false);
+      }
+    };
     fetchOrders();
   }, []);
 
-  if (loading)
-    return <p className="text-center py-10 text-xl font-semibold">Loading...</p>;
-
-  if (!orders.length)
-    return <p className="text-center py-10 text-xl font-semibold">No orders found.</p>;
+  if (loading) return <p className="text-center py-10 text-xl font-semibold">Loading...</p>;
+  if (!orders.length) return <p className="text-center py-10 text-xl font-semibold">No orders found.</p>;
 
   return (
     <div className="p-6">
       <h1 className="text-2xl font-bold mb-6">Orders Management</h1>
-
       <div className="overflow-x-auto rounded-lg shadow">
         <table className="w-full border-collapse bg-white">
           <thead className="bg-gray-200 text-left">
@@ -55,54 +39,15 @@ const Orders = () => {
               <th className="p-3 font-semibold">Date</th>
             </tr>
           </thead>
-
           <tbody>
             {orders.map((order) => (
-              <tr
-                key={order._id || Math.random()}
-                className="border-t hover:bg-gray-50 transition"
-              >
-                <td className="p-3 font-medium">{order._id || "N/A"}</td>
-
-                <td className="p-3">
-                  {order.user?.name || "N/A"}  
-                  <br />
-                  <span className="text-sm text-gray-600">{order.user?.email || "N/A"}</span>
-                </td>
-
-                <td className="p-3 font-semibold">
-                  Rs. {order.totalPrice?.toLocaleString() || 0}
-                </td>
-
-                <td className="p-3">
-                  <span
-                    className={`px-2 py-1 rounded text-sm ${
-                      order.isPaid
-                        ? "bg-green-100 text-green-700"
-                        : "bg-red-100 text-red-700"
-                    }`}
-                  >
-                    {order.isPaid ? "Paid" : "Not Paid"}
-                  </span>
-                </td>
-
-                <td className="p-3">
-                  <span
-                    className={`px-2 py-1 rounded text-sm ${
-                      order.isDelivered
-                        ? "bg-blue-100 text-blue-700"
-                        : "bg-orange-100 text-orange-700"
-                    }`}
-                  >
-                    {order.isDelivered ? "Delivered" : "Pending"}
-                  </span>
-                </td>
-
-                <td className="p-3">
-                  {order.createdAt
-                    ? new Date(order.createdAt).toLocaleDateString()
-                    : "N/A"}
-                </td>
+              <tr key={order._id} className="border-t hover:bg-gray-50 transition">
+                <td className="p-3">{order._id}</td>
+                <td className="p-3">{order.user?.name || "N/A"} <br /> <span className="text-sm text-gray-600">{order.user?.email || "N/A"}</span></td>
+                <td className="p-3 font-semibold">Rs. {order.totalPrice?.toLocaleString() || 0}</td>
+                <td className="p-3"><span className={`px-2 py-1 rounded text-sm ${order.isPaid ? "bg-green-100 text-green-700" : "bg-red-100 text-red-700"}`}>{order.isPaid ? "Paid" : "Not Paid"}</span></td>
+                <td className="p-3"><span className={`px-2 py-1 rounded text-sm ${order.isDelivered ? "bg-blue-100 text-blue-700" : "bg-orange-100 text-orange-700"}`}>{order.isDelivered ? "Delivered" : "Pending"}</span></td>
+                <td className="p-3">{order.createdAt ? new Date(order.createdAt).toLocaleDateString() : "N/A"}</td>
               </tr>
             ))}
           </tbody>

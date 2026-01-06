@@ -1,3 +1,4 @@
+// backend/app.js
 import express from "express";
 import dotenv from "dotenv";
 import cors from "cors";
@@ -10,41 +11,25 @@ import authRoutes from "./routes/userRoutes/authRoutes.js";
 import productRoutes from "./routes/userRoutes/productRoutes.js";
 import cartRoutes from "./routes/userRoutes/cartRoutes.js";
 import orderRoutes from "./routes/userRoutes/orderRoutes.js";
-
-import adminControllerRoutes from "./routes/adminRoutes/adminRoutes.js";
-import adminProductRoutes from "./routes/adminRoutes/productsControllerRoute.js";
+import adminRoutes from "./routes/adminRoutes/adminRoutes.js";
 
 dotenv.config();
-
-const app = express();
-
 connectDB();
 
+const app = express();
 app.use(helmet());
 app.use(express.json());
-
-const allowedOrigins = ["http://localhost:5173", "http://localhost:5174"];
-app.use(cors({
-  origin: function(origin, callback) {
-    if (!origin) return callback(null, true);
-    if (allowedOrigins.indexOf(origin) === -1) {
-      return callback(new Error("Not allowed by CORS"), false);
-    }
-    return callback(null, true);
-  },
-  credentials: true
-}));
-
+app.use(cors());
 app.use(morgan("dev"));
 
+// Routes
 app.use("/api/auth", authRoutes);
 app.use("/api/products", productRoutes);
 app.use("/api/cart", cartRoutes);
 app.use("/api/orders", orderRoutes);
+app.use("/api/admin", adminRoutes);
 
-app.use("/api/admin/users", adminControllerRoutes); 
-app.use("/api/admin/products", adminProductRoutes); 
-
+// Error handler
 app.use(errorHandler);
 
 app.get("/", (req, res) => res.send("🚀 LowPriceMart Backend Running"));

@@ -1,29 +1,25 @@
 import { useEffect, useState } from "react";
-import axios from "axios";
+import adminApi from "../services/adminApi";
 
 const Users = () => {
   const [users, setUsers] = useState([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-  const fetchUsers = async () => {
-    const token = localStorage.getItem("token");
-    try {
-      const res = await axios.get("/api/users", {
-        headers: { Authorization: `Bearer ${token}` },
-      });
+    const fetchUsers = async () => {
+      try {
+        const { data } = await adminApi.get("/admin/users");
+        setUsers(Array.isArray(data) ? data : data.users || []);
+      } catch (err) {
+        console.error(err);
+        setUsers([]);
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchUsers();
+  }, []);
 
-      const usersArray = Array.isArray(res.data) ? res.data : res.data.users || [];
-      setUsers(usersArray);
-    } catch (err) {
-      console.error("Error fetching users:", err);
-      setUsers([]);
-    }
-    setLoading(false);
-  };
-
-  fetchUsers();
-}, []);
   if (loading) return <p className="text-center py-10 text-xl font-semibold">Loading...</p>;
 
   return (
@@ -40,7 +36,7 @@ const Users = () => {
             </tr>
           </thead>
           <tbody>
-            {users.map(user => (
+            {users.map((user) => (
               <tr key={user._id} className="border-t hover:bg-gray-50 transition">
                 <td className="p-3">{user.name}</td>
                 <td className="p-3">{user.email}</td>

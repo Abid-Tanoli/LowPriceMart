@@ -1,5 +1,10 @@
+// backend/routes/userRoutes/orderRoutes.js
 import express from "express";
-import { createOrder, getUserOrders, getOrderById } from "../../controllers/userOrderController.js";
+import {
+  createOrder,
+  getUserOrders,
+  getOrderById,
+} from "../../controllers/userOrderController.js";
 import { protect } from "../../middleware/authMiddleware.js";
 
 const router = express.Router();
