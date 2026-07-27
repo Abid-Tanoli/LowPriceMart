@@ -1,60 +1,96 @@
-import { useEffect, useState } from "react";
-import adminApi from "../services/adminApi";
+import { useEffect, useState } from "react"
+import { ShoppingCart } from "lucide-react"
+import adminApi from "../services/adminApi"
+import { Card, CardContent } from "../components/ui/card"
+import { Badge } from "../components/ui/badge"
+import { Skeleton } from "../components/ui/skeleton"
+import {
+  Table, TableBody, TableCell, TableHead, TableHeader, TableRow,
+} from "../components/ui/table"
 
 const Orders = () => {
-  const [orders, setOrders] = useState([]);
-  const [loading, setLoading] = useState(true);
+  const [orders, setOrders] = useState([])
+  const [loading, setLoading] = useState(true)
 
   useEffect(() => {
     const fetchOrders = async () => {
       try {
-        const { data } = await adminApi.get("/admin/orders");
-        const ordersArray = Array.isArray(data) ? data : data.orders || [];
-        setOrders(ordersArray);
+        const { data } = await adminApi.get("/admin/orders")
+        setOrders(Array.isArray(data) ? data : data.orders || [])
       } catch (err) {
-        console.error(err);
-        setOrders([]);
+        console.error(err)
+        setOrders([])
       } finally {
-        setLoading(false);
+        setLoading(false)
       }
-    };
-    fetchOrders();
-  }, []);
-
-  if (loading) return <p className="text-center py-10 text-xl font-semibold">Loading...</p>;
-  if (!orders.length) return <p className="text-center py-10 text-xl font-semibold">No orders found.</p>;
+    }
+    fetchOrders()
+  }, [])
 
   return (
-    <div className="p-6">
-      <h1 className="text-2xl font-bold mb-6">Orders Management</h1>
-      <div className="overflow-x-auto rounded-lg shadow">
-        <table className="w-full border-collapse bg-white">
-          <thead className="bg-gray-200 text-left">
-            <tr>
-              <th className="p-3 font-semibold">Order ID</th>
-              <th className="p-3 font-semibold">User</th>
-              <th className="p-3 font-semibold">Amount</th>
-              <th className="p-3 font-semibold">Payment</th>
-              <th className="p-3 font-semibold">Status</th>
-              <th className="p-3 font-semibold">Date</th>
-            </tr>
-          </thead>
-          <tbody>
-            {orders.map((order) => (
-              <tr key={order._id} className="border-t hover:bg-gray-50 transition">
-                <td className="p-3">{order._id}</td>
-                <td className="p-3">{order.user?.name || "N/A"} <br /> <span className="text-sm text-gray-600">{order.user?.email || "N/A"}</span></td>
-                <td className="p-3 font-semibold">Rs. {order.totalPrice?.toLocaleString() || 0}</td>
-                <td className="p-3"><span className={`px-2 py-1 rounded text-sm ${order.isPaid ? "bg-green-100 text-green-700" : "bg-red-100 text-red-700"}`}>{order.isPaid ? "Paid" : "Not Paid"}</span></td>
-                <td className="p-3"><span className={`px-2 py-1 rounded text-sm ${order.isDelivered ? "bg-blue-100 text-blue-700" : "bg-orange-100 text-orange-700"}`}>{order.isDelivered ? "Delivered" : "Pending"}</span></td>
-                <td className="p-3">{order.createdAt ? new Date(order.createdAt).toLocaleDateString() : "N/A"}</td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
+    <div>
+      <div className="flex items-center gap-3 mb-6">
+        <ShoppingCart className="h-6 w-6 text-primary" />
+        <h1 className="text-2xl font-bold text-foreground">Orders Management</h1>
       </div>
-    </div>
-  );
-};
 
-export default Orders;
+      {loading ? (
+        <div className="space-y-3">
+          {Array.from({ length: 5 }).map((_, i) => <Skeleton key={i} className="h-14 w-full" />)}
+        </div>
+      ) : orders.length === 0 ? (
+        <Card><CardContent className="p-10 text-center text-muted-foreground">No orders found.</CardContent></Card>
+      ) : (
+        <Card>
+          <CardContent className="p-0">
+            <Table>
+              <TableHeader>
+                <TableRow>
+                  <TableHead>Order ID</TableHead>
+                  <TableHead>Customer</TableHead>
+                  <TableHead>Amount</TableHead>
+                  <TableHead>Method</TableHead>
+                  <TableHead>Payment</TableHead>
+                  <TableHead>Txn ID</TableHead>
+                  <TableHead>Status</TableHead>
+                  <TableHead>Date</TableHead>
+                </TableRow>
+              </TableHeader>
+              <TableBody>
+                {orders.map((order) => (
+                  <TableRow key={order._id}>
+                    <TableCell className="font-mono text-xs">{order._id.slice(-8)}</TableCell>
+                    <TableCell>
+                      <div className="font-medium">{order.user?.name || "N/A"}</div>
+                      <div className="text-xs text-muted-foreground">{order.user?.email || ""}</div>
+                    </TableCell>
+                    <TableCell className="font-semibold">Rs. {order.totalPrice?.toLocaleString() || 0}</TableCell>
+                    <TableCell className="text-xs">{order.paymentMethod || "—"}</TableCell>
+                    <TableCell>
+                      <Badge variant={order.isPaid ? "success" : "warning"}>
+                        {order.isPaid ? "Paid" : "Not Paid"}
+                      </Badge>
+                    </TableCell>
+                    <TableCell className="font-mono text-xs">
+                      {order.transactionId || "—"}
+                    </TableCell>
+                    <TableCell>
+                      <Badge variant={order.isDelivered ? "success" : "secondary"}>
+                        {order.isDelivered ? "Delivered" : "Pending"}
+                      </Badge>
+                    </TableCell>
+                    <TableCell className="text-muted-foreground">
+                      {order.createdAt ? new Date(order.createdAt).toLocaleDateString() : "—"}
+                    </TableCell>
+                  </TableRow>
+                ))}
+              </TableBody>
+            </Table>
+          </CardContent>
+        </Card>
+      )}
+    </div>
+  )
+}
+
+export default Orders

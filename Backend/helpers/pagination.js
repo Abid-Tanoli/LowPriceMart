@@ -1,3 +1,5 @@
+import logger from "../utils/logger.js";
+
 export const paginate = async (model, query = {}, options = {}) => {
   try {
     const page = parseInt(options.page, 10) > 0 ? parseInt(options.page, 10) : 1;
@@ -29,7 +31,7 @@ export const paginate = async (model, query = {}, options = {}) => {
       docs,
     };
   } catch (error) {
-    console.error("Pagination error:", error.message);
+    logger.error("Pagination error:", error.message);
     throw new Error("Pagination failed");
   }
 };

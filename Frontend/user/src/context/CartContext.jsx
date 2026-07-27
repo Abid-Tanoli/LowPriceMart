@@ -26,10 +26,12 @@ const CartProvider = ({ children }) => {
 
   const addToCart = async (productId, qty = 1) => {
     setCart((prev) => {
-      const existing = prev.find((item) => item.productId === productId);
+      const existing = prev.find((item) => item.product?._id === productId || item.productId === productId);
       if (existing) {
         return prev.map((item) =>
-          item.productId === productId ? { ...item, qty: item.qty + qty } : item
+          (item.product?._id === productId || item.productId === productId)
+            ? { ...item, qty: item.qty + qty }
+            : item
         );
       }
       return [...prev, { productId, qty }];
@@ -46,7 +48,7 @@ const CartProvider = ({ children }) => {
   const removeFromCart = async (productId) => {
     const prevCart = [...cart];
 
-    setCart((prev) => prev.filter((item) => item.productId !== productId));
+    setCart((prev) => prev.filter((item) => item.product?._id !== productId && item.productId !== productId));
 
     try {
       await removeFromCartApi(productId);

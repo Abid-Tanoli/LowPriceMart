@@ -2,13 +2,11 @@ import Product from "../models/Product.js";
 import Order from "../models/Order.js";
 import Cart from "../models/Cart.js";
 import { sendEmail } from "../services/emailService.js";
+import logger from "../utils/logger.js";
 
 export const createOrder = async (req, res) => {
   try {
-    console.log("Creating order for user:", req.user?._id);
-    console.log("Request body:", req.body);
-
-    const { productId, qty, shippingAddress, paymentMethod, items, orderItems } = req.body;
+    const { shippingAddress, paymentMethod, orderItems, items } = req.body;
 
     if (!req.user) {
       return res.status(401).json({ message: "User not authenticated" });
@@ -21,8 +19,10 @@ export const createOrder = async (req, res) => {
     let finalOrderItems = [];
     let itemsPrice = 0;
 
-    if (orderItems?.length > 0) {
-      for (let item of orderItems) {
+    const sourceItems = orderItems || items;
+
+    if (sourceItems?.length > 0) {
+      for (let item of sourceItems) {
         const product = await Product.findById(item.product);
         if (!product) return res.status(404).json({ message: `Product not found: ${item.product}` });
         if (product.stock < item.qty) return res.status(400).json({ message: `Insufficient stock for ${product.name}` });
@@ -36,40 +36,8 @@ export const createOrder = async (req, res) => {
         });
         itemsPrice += product.price * item.qty;
       }
-    }
-    else if (items?.length > 0) {
-      for (let item of items) {
-        const product = await Product.findById(item.product);
-        if (!product) return res.status(404).json({ message: `Product not found: ${item.product}` });
-        if (product.stock < item.qty) return res.status(400).json({ message: `Insufficient stock for ${product.name}` });
-
-        finalOrderItems.push({
-          product: item.product,
-          name: product.name,
-          qty: item.qty,
-          price: product.price,
-          image: product.image,
-        });
-        itemsPrice += product.price * item.qty;
-      }
-    }
-    else if (productId && qty) {
-      const product = await Product.findById(productId);
-      if (!product) return res.status(404).json({ message: "Product not found" });
-      if (product.stock < qty) return res.status(400).json({ message: "Insufficient stock" });
-
-      finalOrderItems.push({
-        product: product._id,
-        name: product.name,
-        qty,
-        price: product.price,
-        image: product.image,
-      });
-      itemsPrice = product.price * qty;
-    }
-    else {
+    } else {
       const cart = await Cart.findOne({ user: req.user._id });
-      console.log("User cart:", cart);
 
       if (!cart || cart.items.length === 0) {
         return res.status(400).json({ message: "Cart is empty" });
@@ -115,15 +83,15 @@ export const createOrder = async (req, res) => {
         text: "Your order has been placed successfully.",
         html: "<b>Your order has been placed successfully.</b>",
       });
-      console.log("Email sent successfully:", info.response);
+      logger.info("Order confirmation email sent");
     } catch (err) {
-      console.error("Failed to send email:", err);
+      logger.error("Failed to send email:", err);
     }
 
-    console.log("✅ Order created successfully:", order._id);
+    logger.info("Order created:", order._id);
     res.status(201).json(order);
   } catch (error) {
-    console.error("❌ Create order error:", error);
+    logger.error("Create order error:", error);
     res.status(500).json({ message: error.message });
   }
 };
@@ -141,6 +109,9 @@ export const getOrderById = async (req, res) => {
   try {
     const order = await Order.findById(req.params.id).populate("user", "name email");
     if (!order) return res.status(404).json({ message: "Order not found" });
+    if (order.user._id.toString() !== req.user._id.toString() && req.user.role !== "admin") {
+      return res.status(403).json({ message: "Not authorized to view this order" });
+    }
     res.json(order);
   } catch (error) {
     res.status(500).json({ message: error.message });

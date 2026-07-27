@@ -73,6 +73,8 @@ const handleDownloadPDF = async () => {
           <p><strong>Date:</strong> {new Date(order.createdAt).toLocaleDateString()}</p>
           <p><strong>Payment Status:</strong> {order.isPaid ? "PAID" : "PENDING"}</p>
           <p><strong>Payment Method:</strong> {order.paymentMethod}</p>
+          {order.transactionId && <p><strong>Transaction ID:</strong> {order.transactionId}</p>}
+          {order.isPaid && order.paidAt && <p><strong>Paid At:</strong> {new Date(order.paidAt).toLocaleString()}</p>}
 
           <div className="mt-6">
             <h2 className="font-bold mb-2">Bill To</h2>

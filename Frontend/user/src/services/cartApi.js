@@ -10,8 +10,13 @@ export const addToCart = async (productId, qty = 1) => {
   return data;
 };
 
+export const updateCartItem = async (productId, qty) => {
+  const { data } = await api.put(`/cart/${productId}`, { qty });
+  return data;
+};
+
 export const removeFromCart = async (productId) => {
-  const { data } = await api.delete(`/cart/remove/${productId}`);
+  const { data } = await api.delete(`/cart/${productId}`);
   return data;
 };
 

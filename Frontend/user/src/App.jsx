@@ -1,4 +1,4 @@
-import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
+import { Routes, Route } from "react-router-dom";
 import Home from "./pages/Index";
 import Cart from "./pages/Cart";
 import Login from "./pages/auth/Login";
@@ -13,6 +13,9 @@ import ProfilePage from "./pages/ProfilePage";
 import OrderList from "./pages/OrderList";
 import OrderDetails from "./pages/OrderDetails"
 import InvoicePage from "./pages/InvoicePage";
+import Wishlist from "./pages/Wishlist";
+import PaymentResult from "./pages/PaymentResult";
+import PrivateRoute from "./routes/PrivateRoute";
 
 const App = () => {
   return (
@@ -29,13 +32,12 @@ const App = () => {
         <Route path="/orders" element={<OrderList />} />
         <Route path="/orders/:id" element={<OrderDetails />} />
         <Route path="/invoice/:id" element={<InvoicePage />} />
-
+        <Route path="/wishlist" element={<PrivateRoute><Wishlist /></PrivateRoute>} />
+        <Route path="/payment-result" element={<PaymentResult />} />
       </Route>
 
       <Route path="/login" element={<Login />} />
       <Route path="/register" element={<Register />} />
-
-
     </Routes>
   );
 };

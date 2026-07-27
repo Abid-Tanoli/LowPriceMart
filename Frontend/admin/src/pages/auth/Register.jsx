@@ -1,75 +1,66 @@
-import React, { useState } from "react";
-import { useDispatch, useSelector } from "react-redux";
-import { useNavigate } from "react-router-dom";
-import { registerUserThunk } from "../../hooks/authSlice";
+import { useState } from "react"
+import { useDispatch, useSelector } from "react-redux"
+import { useNavigate, Link } from "react-router-dom"
+import { Package, UserPlus } from "lucide-react"
+import { registerUserThunk } from "../../hooks/authSlice"
+import { Button } from "../../components/ui/button"
+import { Input } from "../../components/ui/input"
+import { Label } from "../../components/ui/label"
+import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "../../components/ui/card"
 
 const Register = () => {
-  const [form, setForm] = useState({ name: "", email: "", password: "" });
-  const dispatch = useDispatch();
-  const navigate = useNavigate();
-  const { loading, error } = useSelector((state) => state.auth);
+  const [form, setForm] = useState({ name: "", email: "", password: "" })
+  const dispatch = useDispatch()
+  const navigate = useNavigate()
+  const { loading, error } = useSelector((state) => state.auth)
 
-  const handleChange = (e) => setForm({ ...form, [e.target.name]: e.target.value });
+  const handleChange = (e) => setForm({ ...form, [e.target.name]: e.target.value })
 
   const handleSubmit = (e) => {
-    e.preventDefault();
+    e.preventDefault()
     dispatch(registerUserThunk(form)).then((res) => {
-      if (res.meta.requestStatus === "fulfilled") navigate("/");
-    });
-  };
+      if (res.meta.requestStatus === "fulfilled") navigate("/")
+    })
+  }
 
   return (
-    <div className="flex justify-center items-center h-screen bg-gray-100">
-      <form
-        onSubmit={handleSubmit}
-        className="bg-white p-8 rounded-2xl shadow-md w-80"
-      >
-        <h2 className="text-xl font-bold mb-4 text-center">Register</h2>
-
-        <input
-          name="name"
-          onChange={handleChange}
-          value={form.name}
-          placeholder="Name"
-          className="border p-2 w-full mb-3 rounded"
-          required
-        />
-        <input
-          name="email"
-          onChange={handleChange}
-          value={form.email}
-          placeholder="Email"
-          className="border p-2 w-full mb-3 rounded"
-          required
-        />
-        <input
-          name="password"
-          type="password"
-          onChange={handleChange}
-          value={form.password}
-          placeholder="Password"
-          className="border p-2 w-full mb-3 rounded"
-          required
-        />
-
-        {error && <p className="text-red-500 text-sm mb-2">{error}</p>}
-
-        <button
-          disabled={loading}
-          className="bg-blue-500 text-white w-full py-2 rounded hover:bg-blue-600"
-        >
-          {loading ? "Registering..." : "Register"}
-        </button>
-
-        <p className="text-center mt-3 text-sm">
-          Already have an account?{" "}
-          <a href="/login" className="text-blue-600 hover:underline">
-            Login
-          </a>
-        </p>
-      </form>
+    <div className="min-h-screen flex items-center justify-center bg-muted/30 p-4">
+      <Card className="w-full max-w-sm">
+        <CardHeader className="text-center">
+          <div className="flex justify-center mb-2">
+            <Package className="h-10 w-10 text-primary" />
+          </div>
+          <CardTitle className="text-2xl">Create Account</CardTitle>
+          <CardDescription>Register as a new admin user</CardDescription>
+        </CardHeader>
+        <CardContent>
+          <form onSubmit={handleSubmit} className="space-y-4">
+            <div className="space-y-2">
+              <Label htmlFor="name">Full Name</Label>
+              <Input id="name" name="name" placeholder="John Doe" value={form.name} onChange={handleChange} required />
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="email">Email</Label>
+              <Input id="email" name="email" type="email" placeholder="you@example.com" value={form.email} onChange={handleChange} required />
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="password">Password</Label>
+              <Input id="password" name="password" type="password" placeholder="••••••••" value={form.password} onChange={handleChange} required />
+            </div>
+            {error && <p className="text-sm text-destructive">{error}</p>}
+            <Button type="submit" className="w-full" disabled={loading}>
+              {loading ? "Creating account..." : "Create Account"}
+              <UserPlus className="ml-2 h-4 w-4" />
+            </Button>
+          </form>
+          <p className="text-center text-sm text-muted-foreground mt-6">
+            Already have an account?{" "}
+            <Link to="/auth/login" className="text-primary hover:underline font-medium">Sign In</Link>
+          </p>
+        </CardContent>
+      </Card>
     </div>
-  );
-};
+  )
+}
 
-export default Register;
+export default Register

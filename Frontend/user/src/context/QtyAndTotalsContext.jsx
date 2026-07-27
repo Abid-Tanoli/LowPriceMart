@@ -1,5 +1,5 @@
 import React, { createContext, useContext, useEffect, useState } from "react";
-import { addToCart, removeFromCart } from "../services/cartApi";
+import { updateCartItem, removeFromCart } from "../services/cartApi";
 import { useCart } from "./CartContext";
 
 const QtyTotalsContext = createContext();
@@ -32,32 +32,37 @@ export const QtyTotalsProvider = ({ children }) => {
   };
 
   const increaseQty = async (productId) => {
-    const updatedCart = cart.map((item) => {
-      if (item?.product?._id === productId && item.qty < item.product.stock) {
-        addToCart(productId, 1);
-        return { ...item, qty: item.qty + 1 };
-      }
-      return item;
-    });
+    const item = cart.find((i) => i?.product?._id === productId);
+    if (!item || item.qty >= item.product.stock) return;
+    const newQty = item.qty + 1;
+    const updatedCart = cart.map((i) =>
+      i?.product?._id === productId ? { ...i, qty: newQty } : i
+    );
     setCart(updatedCart);
+    try {
+      await updateCartItem(productId, newQty);
+    } catch {
+      setCart(cart);
+    }
   };
 
   const decreaseQty = async (productId) => {
-    const updatedCart = cart
-      .map((item) => {
-        if (item?.product?._id === productId) {
-          if (item.qty === 1) {
-            removeFromCart(productId);
-            return null;
-          } else {
-            addToCart(productId, -1);
-            return { ...item, qty: item.qty - 1 };
-          }
-        }
-        return item;
-      })
-      .filter(Boolean);
+    const item = cart.find((i) => i?.product?._id === productId);
+    if (!item) return;
+    if (item.qty <= 1) {
+      removeItem(productId);
+      return;
+    }
+    const newQty = item.qty - 1;
+    const updatedCart = cart.map((i) =>
+      i?.product?._id === productId ? { ...i, qty: newQty } : i
+    );
     setCart(updatedCart);
+    try {
+      await updateCartItem(productId, newQty);
+    } catch {
+      setCart(cart);
+    }
   };
 
   const removeItem = (productId) => {

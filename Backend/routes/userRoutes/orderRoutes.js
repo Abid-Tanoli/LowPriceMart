@@ -1,4 +1,3 @@
-// backend/routes/userRoutes/orderRoutes.js
 import express from "express";
 import {
   createOrder,
@@ -6,10 +5,11 @@ import {
   getOrderById,
 } from "../../controllers/userOrderController.js";
 import { protect } from "../../middleware/authMiddleware.js";
+import { validate, orderSchemas } from "../../middleware/validate.js";
 
 const router = express.Router();
 
-router.post("/", protect, createOrder);
+router.post("/", protect, validate(orderSchemas.create), createOrder);
 router.get("/myorders", protect, getUserOrders);
 router.get("/:id", protect, getOrderById);
 

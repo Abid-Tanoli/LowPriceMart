@@ -98,9 +98,27 @@ const OrderDetails = () => {
         <div className="mt-6">
           <h2 className="text-xl font-semibold text-gray-800 mb-2">Payment</h2>
           <p className="text-gray-700">
-            <span className="font-semibold">Status: </span>
+            <span className="font-semibold">Method: </span>
             {order.paymentMethod}
           </p>
+          <p className="text-gray-700">
+            <span className="font-semibold">Status: </span>
+            <span className={order.isPaid ? "text-green-600 font-semibold" : "text-yellow-600 font-semibold"}>
+              {order.isPaid ? "PAID" : "PENDING"}
+            </span>
+          </p>
+          {order.isPaid && order.paidAt && (
+            <p className="text-gray-700">
+              <span className="font-semibold">Paid At: </span>
+              {new Date(order.paidAt).toLocaleString()}
+            </p>
+          )}
+          {order.transactionId && (
+            <p className="text-gray-700">
+              <span className="font-semibold">Transaction ID: </span>
+              <span className="font-mono text-sm">{order.transactionId}</span>
+            </p>
+          )}
         </div>
 
         <div className="mt-8 p-4 bg-gray-100 rounded-xl">

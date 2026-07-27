@@ -1,108 +1,107 @@
-import React from "react";
-import { ShoppingCart } from "lucide-react";
-import { Link } from "react-router-dom";
-import { addToCart } from "../services/cartApi";
+import { ShoppingCart, Eye, Heart, Star } from "lucide-react"
+import { Link } from "react-router-dom"
+import { addToCart } from "../services/cartApi"
+import { addToWishlist, removeFromWishlist } from "../services/wishlistApi"
+import { Button } from "./ui/button"
+import { Badge } from "./ui/badge"
+import {
+  Card,
+  CardContent,
+  CardFooter,
+} from "./ui/card"
+import { toast } from "sonner"
 
-const ProductCard = ({
-  _id,
-  image,
-  name,
-  category,
-  brand,
-  price,
-  description,
-  countInStock,
-}) => {
-  const handleCart = async () => {
+const ProductCard = ({ _id, image, name, category, brand, price, description, countInStock, rating, numReviews, wishlisted, onWishlistChange }) => {
+  const handleCart = async (e) => {
+    e.preventDefault()
+    e.stopPropagation()
     try {
-      await addToCart(_id, 1);
-      alert(`${name} added to cart successfully!`);
+      await addToCart(_id, 1)
+      toast.success(`${name} added to cart!`)
     } catch (error) {
-      console.error("Add to cart error:", error);
-      alert("Failed to add item. Please login or try again.");
+      console.error("Add to cart error:", error)
+      toast.error(error.response?.data?.message || "Failed to add item")
     }
-  };
+  }
+
+  const handleWishlist = async (e) => {
+    e.preventDefault()
+    e.stopPropagation()
+    try {
+      if (wishlisted) {
+        await removeFromWishlist(_id)
+        toast.success("Removed from wishlist")
+      } else {
+        await addToWishlist(_id)
+        toast.success("Added to wishlist")
+      }
+      if (onWishlistChange) onWishlistChange()
+    } catch (error) {
+      toast.error(error.response?.data?.message || "Wishlist action failed")
+    }
+  }
 
   return (
-    <div className="w-80 bg-white border border-gray-200 rounded-lg shadow-md hover:shadow-lg transition-all duration-300 dark:bg-gray-800 dark:border-gray-700 mt-5 mb-8">
-      
-      <img
-        className="rounded-t-lg w-full h-56 object-cover"
-        src={image || "https://via.placeholder.com/300"}
-        alt={name}
-      />
-
-      <div className="p-5">
-        <h5 className="mb-2 text-xl font-bold tracking-tight text-gray-900 dark:text-white">
-          {name}
-        </h5>
-
-        {brand && (
-          <p className="text-sm text-gray-500 dark:text-gray-400 mb-1">
-            <span className="font-semibold text-gray-700 dark:text-gray-300">
-              Brand:
-            </span>{" "}
-            {brand}
-          </p>
-        )}
-
-        <p className="text-sm text-gray-500 dark:text-gray-400 mb-1">
-          <span className="font-semibold text-gray-700 dark:text-gray-300">
-            Category:
-          </span>{" "}
-          {category}
-        </p>
-
-        <p className="text-sm text-gray-800 dark:text-gray-200 mb-3 line-clamp-3">
-          {description}
-        </p>
-
-        <div className="mt-2 mb-3">
+    <Card className="group overflow-hidden transition-all duration-300 hover:shadow-lg w-72">
+      <Link to={`/product/${_id}`}>
+        <div className="relative overflow-hidden aspect-square">
+          <img
+            src={image || "/placeholder-product.svg"}
+            alt={name}
+            className="object-cover w-full h-full group-hover:scale-105 transition-transform duration-300"
+          />
           {countInStock > 0 ? (
-            <span className="px-3 py-1 text-xs font-bold bg-green-500 text-white rounded-full">
-              In Stock
-            </span>
+            <Badge variant="success" className="absolute top-2 left-2">In Stock</Badge>
           ) : (
-            <span className="px-3 py-1 text-xs font-bold bg-red-500 text-white rounded-full">
-              Out of Stock
-            </span>
+            <Badge variant="destructive" className="absolute top-2 left-2">Out of Stock</Badge>
           )}
-        </div>
-
-        <div className="flex flex-col gap-3">
-          <div className="flex items-center justify-between">
-            <span className="text-lg font-semibold text-blue-600 dark:text-blue-400">
-              Rs. {price}
-            </span>
-
-            <button
-              onClick={handleCart}
-              disabled={countInStock === 0}
-              className={`inline-flex items-center gap-1 px-3 py-2 text-sm font-medium text-white rounded-lg 
-                transition focus:ring-4 focus:outline-none
-                ${
-                  countInStock === 0
-                    ? "bg-gray-400 cursor-not-allowed"
-                    : "bg-blue-600 hover:bg-blue-700 focus:ring-blue-300 dark:hover:bg-blue-500 dark:focus:ring-blue-800"
-                }`}
-            >
-              {countInStock === 0 ? "Out of Stock" : "Add to Cart"}
-              {countInStock > 0 && <ShoppingCart size={16} />}
-            </button>
-          </div>
-
-          <Link
-            to={`/product/${_id}`}
-            className="inline-block text-center px-3 py-2 text-sm font-medium text-white bg-green-600 rounded-lg 
-              hover:bg-green-700 focus:ring-4 focus:outline-none focus:ring-green-300 
-              dark:hover:bg-green-500 dark:focus:ring-green-800 transition"
+          <button
+            onClick={handleWishlist}
+            className="absolute top-2 right-2 h-8 w-8 rounded-full bg-background/80 backdrop-blur-sm flex items-center justify-center hover:bg-background transition-colors"
           >
-            View Details
-          </Link>
+            <Heart className={`h-4 w-4 ${wishlisted ? "fill-red-500 text-red-500" : "text-muted-foreground"}`} />
+          </button>
         </div>
-      </div>
-    </div>
-  );
-};
+      </Link>
 
-export default ProductCard;
+      <CardContent className="p-4">
+        <Link to={`/product/${_id}`}>
+          <p className="text-xs text-muted-foreground uppercase tracking-wide mb-1">{category}</p>
+          <h3 className="font-semibold text-foreground line-clamp-1 hover:text-primary transition-colors">{name}</h3>
+          {rating > 0 && (
+            <div className="flex items-center gap-1 mt-1">
+              <Star className="h-3 w-3 fill-yellow-400 text-yellow-400" />
+              <span className="text-xs font-medium">{Number(rating).toFixed(1)}</span>
+              <span className="text-xs text-muted-foreground">({numReviews})</span>
+            </div>
+          )}
+          {brand && brand !== "N/A" && (
+            <p className="text-xs text-muted-foreground mt-1">{brand}</p>
+          )}
+          <p className="text-xs text-muted-foreground mt-1 line-clamp-2">{description}</p>
+        </Link>
+      </CardContent>
+
+      <CardFooter className="p-4 pt-0 flex items-center justify-between gap-2">
+        <span className="text-lg font-bold text-primary">Rs. {price?.toLocaleString()}</span>
+        <div className="flex gap-1">
+          <Button size="icon" variant="outline" asChild>
+            <Link to={`/product/${_id}`}>
+              <Eye className="h-4 w-4" />
+            </Link>
+          </Button>
+          <Button
+            size="icon"
+            variant={countInStock > 0 ? "default" : "secondary"}
+            disabled={countInStock === 0}
+            onClick={handleCart}
+          >
+            <ShoppingCart className="h-4 w-4" />
+          </Button>
+        </div>
+      </CardFooter>
+    </Card>
+  )
+}
+
+export default ProductCard

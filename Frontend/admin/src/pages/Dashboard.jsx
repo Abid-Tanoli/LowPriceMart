@@ -1,110 +1,95 @@
-import { useEffect, useState } from "react";
-import { useNavigate } from "react-router-dom";
-import toast from "react-hot-toast";
-import { getDashboardStats } from "../services/adminDashboard";
+import { useEffect, useState } from "react"
+import { useNavigate } from "react-router-dom"
+import { Users, ShoppingCart, Package, PlusCircle, ListOrdered, UserCircle } from "lucide-react"
+import { getDashboardStats } from "../services/adminDashboard"
+import { Card, CardContent } from "../components/ui/card"
+import { Skeleton } from "../components/ui/skeleton"
+import { Button } from "../components/ui/button"
 
 const Dashboard = () => {
-  const [stats, setStats] = useState({
-    users: 0,
-    orders: 0,
-    products: 0,
-  });
-  const [loading, setLoading] = useState(true);
-
-  const navigate = useNavigate();
+  const [stats, setStats] = useState({ users: 0, orders: 0, products: 0 })
+  const [loading, setLoading] = useState(true)
+  const navigate = useNavigate()
 
   useEffect(() => {
     const loadStats = async () => {
       try {
-        const data = await getDashboardStats();
-        setStats(data);
+        const data = await getDashboardStats()
+        setStats(data)
       } catch (error) {
-        console.error("Dashboard error:", error);
-        toast.error("Failed to load dashboard stats");
+        console.error("Dashboard error:", error)
       } finally {
-        setLoading(false);
+        setLoading(false)
       }
-    };
+    }
+    loadStats()
+  }, [])
 
-    loadStats();
-  }, []);
+  const statCards = [
+    { title: "Total Users", value: stats.users, icon: Users, color: "text-blue-600", bg: "bg-blue-100" },
+    { title: "Total Orders", value: stats.orders, icon: ShoppingCart, color: "text-emerald-600", bg: "bg-emerald-100" },
+    { title: "Total Products", value: stats.products, icon: Package, color: "text-violet-600", bg: "bg-violet-100" },
+  ]
 
-  if (loading) {
-    return (
-      <div className="p-6 text-lg font-semibold">
-        Loading dashboard...
-      </div>
-    );
-  }
+  const quickActions = [
+    { title: "Add Product", desc: "Create a new product", icon: PlusCircle, color: "text-blue-600", bg: "bg-blue-50", path: "/create-product" },
+    { title: "View Orders", desc: "Manage customer orders", icon: ListOrdered, color: "text-emerald-600", bg: "bg-emerald-50", path: "/orders" },
+    { title: "Manage Users", desc: "User management", icon: UserCircle, color: "text-violet-600", bg: "bg-violet-50", path: "/users" },
+  ]
 
   return (
-    <div className="p-6">
-      <h1 className="text-3xl font-bold mb-8">Admin Dashboard</h1>
+    <div>
+      <h1 className="text-2xl font-bold text-foreground mb-6">Dashboard</h1>
 
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-10">
-        <Stat title="Total Users" value={stats.users} icon="👤" />
-        <Stat title="Total Orders" value={stats.orders} icon="📦" />
-        <Stat title="Total Products" value={stats.products} icon="🛒" />
-      </div>
-
-      <div className="bg-white p-6 rounded-lg shadow">
-        <h2 className="text-xl font-semibold mb-6">Quick Actions</h2>
-
-        <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-          <QuickAction
-            title="Add Product"
-            subtitle="Create new product"
-            icon="➕"
-            color="bg-blue-100 text-blue-600"
-            onClick={() => navigate("/create-product")}
-          />
-
-          <QuickAction
-            title="View Orders"
-            subtitle="Manage orders"
-            icon="📦"
-            color="bg-green-100 text-green-600"
-            onClick={() => navigate("/orders")}
-          />
-
-          <QuickAction
-            title="View Users"
-            subtitle="User management"
-            icon="👤"
-            color="bg-purple-100 text-purple-600"
-            onClick={() => navigate("/users")}
-          />
+      {loading ? (
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-10">
+          {Array.from({ length: 3 }).map((_, i) => (
+            <Card key={i}><CardContent className="p-6"><Skeleton className="h-16 w-full" /></CardContent></Card>
+          ))}
         </div>
-      </div>
-    </div>
-  );
-};
+      ) : (
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-10">
+          {statCards.map((stat) => (
+            <Card key={stat.title}>
+              <CardContent className="p-6 flex items-center gap-4">
+                <div className={`p-3 rounded-full ${stat.bg} ${stat.color}`}>
+                  <stat.icon className="h-6 w-6" />
+                </div>
+                <div>
+                  <p className="text-sm text-muted-foreground">{stat.title}</p>
+                  <p className="text-2xl font-bold">{stat.value}</p>
+                </div>
+              </CardContent>
+            </Card>
+          ))}
+        </div>
+      )}
 
-const Stat = ({ title, value, icon }) => (
-  <div className="bg-white p-6 rounded-lg shadow flex items-center gap-4">
-    <div className="text-3xl">{icon}</div>
-    <div>
-      <p className="text-gray-500">{title}</p>
-      <h2 className="text-2xl font-bold">{value ?? "—"}</h2>
+      <Card>
+        <CardContent className="p-6">
+          <h2 className="text-lg font-semibold mb-4">Quick Actions</h2>
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+            {quickActions.map((action) => (
+              <Button
+                key={action.title}
+                variant="outline"
+                className="h-auto p-4 flex items-center gap-3 justify-start"
+                onClick={() => navigate(action.path)}
+              >
+                <div className={`p-2 rounded-full ${action.bg} ${action.color}`}>
+                  <action.icon className="h-5 w-5" />
+                </div>
+                <div className="text-left">
+                  <p className="font-medium">{action.title}</p>
+                  <p className="text-xs text-muted-foreground">{action.desc}</p>
+                </div>
+              </Button>
+            ))}
+          </div>
+        </CardContent>
+      </Card>
     </div>
-  </div>
-);
+  )
+}
 
-const QuickAction = ({ title, subtitle, icon, color, onClick }) => (
-  <div
-    onClick={onClick}
-    className="flex items-center gap-4 p-4 rounded-lg border cursor-pointer hover:shadow-md transition"
-  >
-    <div
-      className={`w-12 h-12 rounded-full flex items-center justify-center ${color}`}
-    >
-      <span className="text-xl">{icon}</span>
-    </div>
-    <div>
-      <h3 className="font-semibold">{title}</h3>
-      <p className="text-sm text-gray-500">{subtitle}</p>
-    </div>
-  </div>
-);
-
-export default Dashboard;
+export default Dashboard

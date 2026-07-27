@@ -1,4 +1,3 @@
-// backend/routes/userRoutes/cartRoutes.js
 import express from "express";
 import {
   addToCart,
@@ -8,13 +7,14 @@ import {
   clearCart,
 } from "../../controllers/userCartController.js";
 import { protect } from "../../middleware/authMiddleware.js";
+import { validate, cartSchemas } from "../../middleware/validate.js";
 
 const router = express.Router();
 
 router.get("/", protect, getCart);
-router.post("/add", protect, addToCart);
-router.put("/:productId", protect, updateQty);
+router.post("/add", protect, validate(cartSchemas.addItem), addToCart);
+router.delete("/clear", protect, clearCart);
+router.put("/:productId", protect, validate(cartSchemas.updateQty), updateQty);
 router.delete("/:productId", protect, removeFromCart);
-router.delete("/remove/:id", protect, clearCart);
 
 export default router;

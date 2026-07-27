@@ -66,6 +66,18 @@ const OrderList = () => {
                 <span className="font-semibold">Payment:</span> {order.paymentMethod}
               </p>
               <p className="text-gray-700">
+                <span className="font-semibold">Status:</span>{" "}
+                <span className={order.isPaid ? "text-green-600 font-semibold" : "text-yellow-600 font-semibold"}>
+                  {order.isPaid ? "PAID" : "PENDING"}
+                </span>
+              </p>
+              {order.transactionId && (
+                <p className="text-gray-700">
+                  <span className="font-semibold">Txn ID:</span>{" "}
+                  <span className="font-mono text-sm">{order.transactionId}</span>
+                </p>
+              )}
+              <p className="text-gray-700">
                 <span className="font-semibold">Address:</span>{" "}
                 {typeof order.shippingAddress === "string"
                   ? order.shippingAddress

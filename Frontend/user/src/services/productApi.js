@@ -1,11 +1,17 @@
 import axiosInstance from "./api";
 
-export const getProducts = async (page = 1, limit = 10, category = "") => {
+export const getProducts = async (page = 1, limit = 10, category = "", search = "", sort = "") => {
   try {
     let url = `/products?page=${page}&limit=${limit}`;
 
     if (category) {
       url += `&category=${encodeURIComponent(category)}`;
+    }
+    if (search) {
+      url += `&search=${encodeURIComponent(search)}`;
+    }
+    if (sort) {
+      url += `&sort=${sort}`;
     }
 
     const { data } = await axiosInstance.get(url);
@@ -74,6 +80,22 @@ export const createProduct = async (productData) => {
 export const updateProduct = async (id, updatedData) => {
   const { data } = await axiosInstance.put(`/products/${id}`, updatedData);
   return data;
+};
+
+export const createReview = async (productId, reviewData) => {
+  const { data } = await axiosInstance.post(`/products/${productId}/reviews`, reviewData);
+  return data;
+};
+
+export const getSearchSuggestions = async (q) => {
+  try {
+    if (!q || q.trim().length === 0) return [];
+    const { data } = await axiosInstance.get(`/products/search-suggestions?q=${encodeURIComponent(q.trim())}`);
+    return Array.isArray(data) ? data : [];
+  } catch (error) {
+    console.error("Error fetching search suggestions:", error);
+    return [];
+  }
 };
 
 export const deleteProduct = async (id) => {

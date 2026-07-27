@@ -1,282 +1,217 @@
-import { useEffect, useState } from "react";
-import toast from "react-hot-toast";
-import adminApi from "../services/adminApi";
+import { useEffect, useState } from "react"
+import { Search, Edit, Trash2, Plus, ChevronLeft, ChevronRight } from "lucide-react"
+import adminApi from "../services/adminApi"
+import { Button } from "../components/ui/button"
+import { Input } from "../components/ui/input"
+import { Badge } from "../components/ui/badge"
+import { Card, CardContent } from "../components/ui/card"
+import { Skeleton } from "../components/ui/skeleton"
+import {
+  Table, TableBody, TableCell, TableHead, TableHeader, TableRow,
+} from "../components/ui/table"
+import {
+  Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter,
+} from "../components/ui/dialog"
 
 const AdminProducts = () => {
-  const [products, setProducts] = useState([]);
-  const [page, setPage] = useState(1);
-  const [totalPages, setTotalPages] = useState(1);
-  const [search, setSearch] = useState("");
-  const [loading, setLoading] = useState(true);
-  const [saving, setSaving] = useState(false);
-
-  const [selectedProduct, setSelectedProduct] = useState(null);
-  const [imagePreview, setImagePreview] = useState(null);
+  const [products, setProducts] = useState([])
+  const [page, setPage] = useState(1)
+  const [totalPages, setTotalPages] = useState(1)
+  const [search, setSearch] = useState("")
+  const [loading, setLoading] = useState(true)
+  const [saving, setSaving] = useState(false)
+  const [selectedProduct, setSelectedProduct] = useState(null)
+  const [imagePreview, setImagePreview] = useState(null)
+  const [deleteConfirm, setDeleteConfirm] = useState(null)
 
   const fetchProducts = async () => {
     try {
-      setLoading(true);
-      const { data } = await adminApi.get(
-        `/admin/products/paginated?page=${page}&limit=8&search=${search}`
-        
-      );
-      console.log("API response:", data);
-      setProducts(data.products || []);
-      setTotalPages(data.totalPages || 1);
+      setLoading(true)
+      const { data } = await adminApi.get(`/admin/products/paginated?page=${page}&limit=8&search=${search}`)
+      setProducts(data.products || [])
+      setTotalPages(data.totalPages || 1)
     } catch (err) {
-      toast.error("Failed to load products");
-      setProducts([]);
-      setTotalPages(1);
+      console.error(err)
+      setProducts([])
+      setTotalPages(1)
     } finally {
-      setLoading(false);
+      setLoading(false)
     }
-  };
+  }
 
-  useEffect(() => {
-    fetchProducts();
-  }, [page, search]);
+  useEffect(() => { fetchProducts() }, [page, search])
 
-  const deleteProduct = async (id) => {
-    if (!window.confirm("Are you sure you want to delete this product?")) return;
-
-    const oldProducts = [...products];
-    setProducts(products.filter((p) => p._id !== id));
-
+  const deleteProduct = async () => {
+    if (!deleteConfirm) return
+    const old = [...products]
+    setProducts(products.filter((p) => p._id !== deleteConfirm))
     try {
-      await adminApi.delete(`/admin/product/${id}`);
-      toast.success("Product deleted successfully");
-      fetchProducts();
+      await adminApi.delete(`/admin/product/${deleteConfirm}`)
+      fetchProducts()
     } catch (err) {
-      toast.error("Failed to delete product");
-      setProducts(oldProducts);
+      setProducts(old)
     }
-  };
+    setDeleteConfirm(null)
+  }
 
   const updateProduct = async () => {
-    if (!selectedProduct) return;
-
-    setSaving(true);
+    if (!selectedProduct) return
+    setSaving(true)
     try {
-      const payload = { ...selectedProduct };
-
+      const payload = { ...selectedProduct }
       if (payload.image instanceof File) {
-        const formData = new FormData();
-        formData.append("image", payload.image);
-        formData.append("name", payload.name);
-        formData.append("price", payload.price);
-        formData.append("stock", payload.stock);
-        formData.append("category", payload.category);
-
+        const formData = new FormData()
+        formData.append("image", payload.image)
+        formData.append("name", payload.name)
+        formData.append("price", payload.price)
+        formData.append("stock", payload.stock)
+        formData.append("category", payload.category)
         await adminApi.put(`/admin/product/${payload._id}`, formData, {
           headers: { "Content-Type": "multipart/form-data" },
-        });
+        })
       } else {
-        await adminApi.put(`/admin/product/${payload._id}`, payload);
+        await adminApi.put(`/admin/product/${payload._id}`, payload)
       }
-
-      toast.success("Product updated successfully");
-      setSelectedProduct(null);
-      setImagePreview(null);
-      fetchProducts();
+      setSelectedProduct(null)
+      setImagePreview(null)
+      fetchProducts()
     } catch (err) {
-      toast.error("Failed to update product");
-      console.error(err);
+      console.error(err)
     } finally {
-      setSaving(false);
+      setSaving(false)
     }
-  };
+  }
 
   const handleImageChange = (e) => {
-    const file = e.target.files[0];
-    if (!file) return;
-    setSelectedProduct({ ...selectedProduct, image: file });
-    setImagePreview(URL.createObjectURL(file));
-  };
+    const file = e.target.files[0]
+    if (!file) return
+    setSelectedProduct({ ...selectedProduct, image: file })
+    setImagePreview(URL.createObjectURL(file))
+  }
 
-  const openEditModal = (product) => {
-    setSelectedProduct({ ...product });
-    setImagePreview(product.image || null);
-  };
-
-  const goToPrevPage = () => setPage((p) => Math.max(1, p - 1));
-  const goToNextPage = () => setPage((p) => Math.min(totalPages, p + 1));
+  const openEdit = (product) => {
+    setSelectedProduct({ ...product })
+    setImagePreview(product.image || null)
+  }
 
   return (
-    <div className="p-6">
-      <h1 className="text-2xl font-bold mb-6">Products Management</h1>
-
-      <input
-        type="text"
-        placeholder="Search products..."
-        value={search}
-        onChange={(e) => {
-          setPage(1);
-          setSearch(e.target.value);
-        }}
-        className="border px-4 py-2 rounded mb-4 w-full md:w-1/3"
-      />
-
-      {loading ? (
-        <p className="py-10 text-lg">Loading...</p>
-      ) : products.length === 0 ? (
-        <p className="py-10 text-lg">No products found.</p>
-      ) : (
-        <div className="overflow-x-auto shadow rounded-lg">
-          <table className="w-full bg-white border-collapse">
-            <thead className="bg-gray-200">
-              <tr>
-                <th className="p-3">Image</th>
-                <th className="p-3">Name</th>
-                <th className="p-3">Price</th>
-                <th className="p-3">Stock</th>
-                <th className="p-3">Category</th>
-                <th className="p-3">Actions</th>
-              </tr>
-            </thead>
-            <tbody>
-              {products.map((p) => (
-                <tr key={p._id} className="border-t hover:bg-gray-50">
-                  <td className="p-3">
-                    {p.image ? (
-                      <img
-                        src={p.image}
-                        alt={p.name}
-                        className="h-12 w-12 rounded object-cover"
-                      />
-                    ) : (
-                      <div className="h-12 w-12 bg-gray-200 rounded flex items-center justify-center text-gray-500 text-sm">
-                        No Image
-                      </div>
-                    )}
-                  </td>
-                  <td className="p-3">{p.name}</td>
-                  <td className="p-3 font-semibold">Rs. {p.price}</td>
-                  <td className="p-3">{p.stock}</td>
-                  <td className="p-3">{p.category}</td>
-                  <td className="p-3 flex gap-2">
-                    <button
-                      onClick={() => openEditModal(p)}
-                      className="px-3 py-1 bg-yellow-500 text-white rounded"
-                    >
-                      Edit
-                    </button>
-                    <button
-                      onClick={() => deleteProduct(p._id)}
-                      className="px-3 py-1 bg-red-600 text-white rounded"
-                    >
-                      Delete
-                    </button>
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
+    <div>
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6">
+        <h1 className="text-2xl font-bold text-foreground">Products</h1>
+        <div className="flex gap-2">
+          <div className="relative">
+            <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
+            <Input
+              placeholder="Search products..."
+              className="pl-8 w-60"
+              value={search}
+              onChange={(e) => { setPage(1); setSearch(e.target.value) }}
+            />
+          </div>
+          <Button asChild>
+            <a href="/create-product"><Plus className="mr-1 h-4 w-4" /> Add</a>
+          </Button>
         </div>
-      )}
-
-      <div className="flex justify-center gap-3 mt-6 items-center">
-        <button
-          disabled={page === 1}
-          onClick={goToPrevPage}
-          className="px-4 py-2 border rounded disabled:opacity-50"
-        >
-          Prev
-        </button>
-
-        <span className="px-4 py-2 font-semibold">
-          Page {page} / {totalPages}
-        </span>
-
-        <button
-          disabled={page === totalPages}
-          onClick={goToNextPage}
-          className="px-4 py-2 border rounded disabled:opacity-50"
-        >
-          Next
-        </button>
       </div>
 
-      {selectedProduct && (
-        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
-          <div className="bg-white p-6 rounded-lg w-96">
-            <h2 className="text-xl font-bold mb-4">Edit Product</h2>
+      {loading ? (
+        <div className="space-y-3">
+          {Array.from({ length: 5 }).map((_, i) => (
+            <Skeleton key={i} className="h-16 w-full" />
+          ))}
+        </div>
+      ) : products.length === 0 ? (
+        <Card><CardContent className="p-10 text-center text-muted-foreground">No products found.</CardContent></Card>
+      ) : (
+        <Card>
+          <CardContent className="p-0">
+            <Table>
+              <TableHeader>
+                <TableRow>
+                  <TableHead>Image</TableHead>
+                  <TableHead>Name</TableHead>
+                  <TableHead>Price</TableHead>
+                  <TableHead>Stock</TableHead>
+                  <TableHead>Category</TableHead>
+                  <TableHead className="text-right">Actions</TableHead>
+                </TableRow>
+              </TableHeader>
+              <TableBody>
+                {products.map((p) => (
+                  <TableRow key={p._id}>
+                    <TableCell>
+                      {p.image ? (
+                        <img src={p.image} alt="" className="h-10 w-10 rounded object-cover" />
+                      ) : (
+                        <div className="h-10 w-10 rounded bg-muted flex items-center justify-center text-xs text-muted-foreground">N/A</div>
+                      )}
+                    </TableCell>
+                    <TableCell className="font-medium">{p.name}</TableCell>
+                    <TableCell>Rs. {p.price?.toLocaleString()}</TableCell>
+                    <TableCell>
+                      <Badge variant={p.stock > 0 ? "success" : "destructive"}>{p.stock}</Badge>
+                    </TableCell>
+                    <TableCell>{p.category}</TableCell>
+                    <TableCell className="text-right">
+                      <div className="flex justify-end gap-1">
+                        <Button variant="ghost" size="icon" onClick={() => openEdit(p)}>
+                          <Edit className="h-4 w-4" />
+                        </Button>
+                        <Button variant="ghost" size="icon" className="text-destructive" onClick={() => setDeleteConfirm(p._id)}>
+                          <Trash2 className="h-4 w-4" />
+                        </Button>
+                      </div>
+                    </TableCell>
+                  </TableRow>
+                ))}
+              </TableBody>
+            </Table>
+          </CardContent>
+        </Card>
+      )}
 
-            <input
-              className="w-full border px-3 py-2 rounded mb-2"
-              placeholder="Name"
-              value={selectedProduct.name}
-              onChange={(e) =>
-                setSelectedProduct({ ...selectedProduct, name: e.target.value })
-              }
-            />
-
-            <input
-              type="number"
-              className="w-full border px-3 py-2 rounded mb-2"
-              placeholder="Price"
-              value={selectedProduct.price}
-              onChange={(e) =>
-                setSelectedProduct({
-                  ...selectedProduct,
-                  price: Number(e.target.value),
-                })
-              }
-            />
-
-            <input
-              type="number"
-              className="w-full border px-3 py-2 rounded mb-2"
-              placeholder="Stock"
-              value={selectedProduct.stock}
-              onChange={(e) =>
-                setSelectedProduct({
-                  ...selectedProduct,
-                  stock: Number(e.target.value),
-                })
-              }
-            />
-
-            <input
-              className="w-full border px-3 py-2 rounded mb-2"
-              placeholder="Category"
-              value={selectedProduct.category}
-              onChange={(e) =>
-                setSelectedProduct({ ...selectedProduct, category: e.target.value })
-              }
-            />
-
-            <input type="file" onChange={handleImageChange} className="mb-3" />
-            {imagePreview && (
-              <img
-                src={imagePreview}
-                alt="preview"
-                className="h-24 w-24 object-cover rounded mb-3"
-              />
-            )}
-
-            <div className="flex justify-end gap-3 mt-4">
-              <button
-                onClick={() => {
-                  setSelectedProduct(null);
-                  setImagePreview(null);
-                }}
-                className="px-4 py-2 bg-gray-300 rounded"
-              >
-                Cancel
-              </button>
-              <button
-                onClick={updateProduct}
-                disabled={saving}
-                className="px-4 py-2 bg-blue-600 text-white rounded"
-              >
-                {saving ? "Saving..." : "Save"}
-              </button>
-            </div>
-          </div>
+      {totalPages > 1 && (
+        <div className="flex justify-center items-center gap-2 mt-6">
+          <Button variant="outline" size="sm" disabled={page <= 1} onClick={() => setPage((p) => p - 1)}>
+            <ChevronLeft className="h-4 w-4" />
+          </Button>
+          <span className="text-sm text-muted-foreground">Page {page} of {totalPages}</span>
+          <Button variant="outline" size="sm" disabled={page >= totalPages} onClick={() => setPage((p) => p + 1)}>
+            <ChevronRight className="h-4 w-4" />
+          </Button>
         </div>
       )}
-    </div>
-  );
-};
 
-export default AdminProducts;
+      <Dialog open={!!selectedProduct} onOpenChange={(o) => { if (!o) { setSelectedProduct(null); setImagePreview(null) } }}>
+        <DialogContent>
+          <DialogHeader><DialogTitle>Edit Product</DialogTitle></DialogHeader>
+          <div className="space-y-3">
+            <Input placeholder="Name" value={selectedProduct?.name || ""} onChange={(e) => setSelectedProduct({ ...selectedProduct, name: e.target.value })} />
+            <Input type="number" placeholder="Price" value={selectedProduct?.price || ""} onChange={(e) => setSelectedProduct({ ...selectedProduct, price: Number(e.target.value) })} />
+            <Input type="number" placeholder="Stock" value={selectedProduct?.stock || ""} onChange={(e) => setSelectedProduct({ ...selectedProduct, stock: Number(e.target.value) })} />
+            <Input placeholder="Category" value={selectedProduct?.category || ""} onChange={(e) => setSelectedProduct({ ...selectedProduct, category: e.target.value })} />
+            <Input type="file" onChange={handleImageChange} />
+            {imagePreview && <img src={imagePreview} alt="" className="h-20 w-20 object-cover rounded" />}
+          </div>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => { setSelectedProduct(null); setImagePreview(null) }}>Cancel</Button>
+            <Button onClick={updateProduct} disabled={saving}>{saving ? "Saving..." : "Save"}</Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      <Dialog open={!!deleteConfirm} onOpenChange={(o) => { if (!o) setDeleteConfirm(null) }}>
+        <DialogContent>
+          <DialogHeader><DialogTitle>Delete Product</DialogTitle></DialogHeader>
+          <p className="text-sm text-muted-foreground">Are you sure you want to delete this product? This action cannot be undone.</p>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setDeleteConfirm(null)}>Cancel</Button>
+            <Button variant="destructive" onClick={deleteProduct}>Delete</Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+    </div>
+  )
+}
+
+export default AdminProducts

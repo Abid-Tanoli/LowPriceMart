@@ -1,58 +1,79 @@
-import { useEffect, useState } from "react";
-import adminApi from "../services/adminApi";
+import { useEffect, useState } from "react"
+import { Users as UsersIcon } from "lucide-react"
+import adminApi from "../services/adminApi"
+import { Card, CardContent } from "../components/ui/card"
+import { Badge } from "../components/ui/badge"
+import { Skeleton } from "../components/ui/skeleton"
+import {
+  Table, TableBody, TableCell, TableHead, TableHeader, TableRow,
+} from "../components/ui/table"
 
 const Users = () => {
-  const [users, setUsers] = useState([]);
-  const [loading, setLoading] = useState(true);
+  const [users, setUsers] = useState([])
+  const [loading, setLoading] = useState(true)
 
   useEffect(() => {
     const fetchUsers = async () => {
       try {
-        const { data } = await adminApi.get("/admin/users");
-        setUsers(Array.isArray(data) ? data : data.users || []);
+        const { data } = await adminApi.get("/admin/users")
+        setUsers(Array.isArray(data) ? data : data.users || [])
       } catch (err) {
-        console.error(err);
-        setUsers([]);
+        console.error(err)
+        setUsers([])
       } finally {
-        setLoading(false);
+        setLoading(false)
       }
-    };
-    fetchUsers();
-  }, []);
-
-  if (loading) return <p className="text-center py-10 text-xl font-semibold">Loading...</p>;
+    }
+    fetchUsers()
+  }, [])
 
   return (
-    <div className="p-6">
-      <h1 className="text-2xl font-bold mb-6">Users Management</h1>
-      <div className="overflow-x-auto rounded-lg shadow">
-        <table className="w-full border-collapse bg-white">
-          <thead className="bg-gray-200 text-left">
-            <tr>
-              <th className="p-3 font-semibold">Name</th>
-              <th className="p-3 font-semibold">Email</th>
-              <th className="p-3 font-semibold">Role</th>
-              <th className="p-3 font-semibold">Created At</th>
-            </tr>
-          </thead>
-          <tbody>
-            {users.map((user) => (
-              <tr key={user._id} className="border-t hover:bg-gray-50 transition">
-                <td className="p-3">{user.name}</td>
-                <td className="p-3">{user.email}</td>
-                <td className="p-3">
-                  <span className={`px-2 py-1 rounded text-sm ${user.role === "admin" ? "bg-blue-100 text-blue-700" : "bg-green-100 text-green-700"}`}>
-                    {user.role}
-                  </span>
-                </td>
-                <td className="p-3">{new Date(user.createdAt).toLocaleDateString()}</td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
+    <div>
+      <div className="flex items-center gap-3 mb-6">
+        <UsersIcon className="h-6 w-6 text-primary" />
+        <h1 className="text-2xl font-bold text-foreground">Users Management</h1>
       </div>
-    </div>
-  );
-};
 
-export default Users;
+      {loading ? (
+        <div className="space-y-3">
+          {Array.from({ length: 5 }).map((_, i) => <Skeleton key={i} className="h-14 w-full" />)}
+        </div>
+      ) : users.length === 0 ? (
+        <Card><CardContent className="p-10 text-center text-muted-foreground">No users found.</CardContent></Card>
+      ) : (
+        <Card>
+          <CardContent className="p-0">
+            <Table>
+              <TableHeader>
+                <TableRow>
+                  <TableHead>Name</TableHead>
+                  <TableHead>Email</TableHead>
+                  <TableHead>Role</TableHead>
+                  <TableHead>Joined</TableHead>
+                </TableRow>
+              </TableHeader>
+              <TableBody>
+                {users.map((user) => (
+                  <TableRow key={user._id}>
+                    <TableCell className="font-medium">{user.name}</TableCell>
+                    <TableCell className="text-muted-foreground">{user.email}</TableCell>
+                    <TableCell>
+                      <Badge variant={user.role === "admin" ? "default" : "secondary"}>
+                        {user.role}
+                      </Badge>
+                    </TableCell>
+                    <TableCell className="text-muted-foreground">
+                      {user.createdAt ? new Date(user.createdAt).toLocaleDateString() : "—"}
+                    </TableCell>
+                  </TableRow>
+                ))}
+              </TableBody>
+            </Table>
+          </CardContent>
+        </Card>
+      )}
+    </div>
+  )
+}
+
+export default Users
