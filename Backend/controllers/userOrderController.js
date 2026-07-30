@@ -118,21 +118,6 @@ export const getOrderById = async (req, res) => {
   }
 };
 
-export const updateOrderToPaid = async (req, res) => {
-  try {
-    const order = await Order.findById(req.params.id);
-    if (!order) return res.status(404).json({ message: "Order not found" });
-
-    order.isPaid = true;
-    order.paidAt = Date.now();
-    await order.save();
-
-    res.json({ message: "Order marked as paid", order });
-  } catch (error) {
-    res.status(500).json({ message: error.message });
-  }
-};
-
 export const updateOrderToDelivered = async (req, res) => {
   try {
     const order = await Order.findById(req.params.id);

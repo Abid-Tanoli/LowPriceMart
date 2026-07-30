@@ -73,10 +73,14 @@ export function verifyCallback(data) {
   if (!recvHash) return false;
 
   // Rebuild hash from callback data (sorted alphabetically by field name except hash)
+  // Integrity salt is prepended to match generateTransaction format per JazzCash spec
   const excludeKeys = ["pp_SecureHash"];
   const keys = Object.keys(data).filter((k) => !excludeKeys.includes(k)).sort();
 
-  const hashString = keys.map((k) => `${k}=${data[k]}`).join("&");
+  const hashString = [
+    JAZZCASH.integritySalt,
+    keys.map((k) => `${k}=${data[k]}`).join("&"),
+  ].join("&");
   const computedHash = crypto.createHmac("sha256", JAZZCASH.integritySalt)
     .update(hashString)
     .digest("hex")

@@ -90,4 +90,7 @@ app.use(errorHandler);
 app.get("/", (req, res) => res.send("LowPriceMart Backend Running"));
 
 const PORT = process.env.PORT || 5000;
-app.listen(PORT, () => logger.info(`Server running on port ${PORT}`));
+if (process.env.NODE_ENV !== "production" || !process.env.VERCEL) {
+  app.listen(PORT, () => logger.info(`Server running on port ${PORT}`));
+}
+export default app;
