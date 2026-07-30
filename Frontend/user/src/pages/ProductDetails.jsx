@@ -33,6 +33,7 @@ const ProductDetails = () => {
   const [loading, setLoading] = useState(true)
   const [related, setRelated] = useState([])
   const [imgError, setImgError] = useState(false)
+  const [imgLoaded, setImgLoaded] = useState(false)
   const [relatedImgErrors, setRelatedImgErrors] = useState({})
   const [isAdding, setIsAdding] = useState(false)
   const [quantity, setQuantity] = useState(1)
@@ -176,12 +177,17 @@ const ProductDetails = () => {
 
       <div className="grid md:grid-cols-2 gap-8 lg:gap-12">
         <div className="space-y-4">
-          <div className="aspect-square rounded-xl overflow-hidden border bg-muted">
+          <div className="aspect-square rounded-xl overflow-hidden border bg-muted relative">
+            {!imgLoaded && !imgError && (
+              <div className="absolute inset-0 bg-muted animate-pulse" />
+            )}
             <img
               src={imgError ? "/placeholder-product.svg" : (product.image || "/placeholder-product.svg")}
-              alt={product.name}
-              onError={() => setImgError(true)}
-              className="w-full h-full object-cover"
+              alt=""
+              onLoad={() => setImgLoaded(true)}
+              onError={() => { setImgError(true); setImgLoaded(true) }}
+              className={`w-full h-full object-cover ${imgLoaded ? "opacity-100" : "opacity-0"}`}
+              loading="lazy"
             />
           </div>
         </div>
@@ -404,10 +410,10 @@ const ProductDetails = () => {
                 className="overflow-hidden cursor-pointer hover:shadow-lg transition-shadow group"
                 onClick={() => navigate(`/product/${item._id}`)}
               >
-                <div className="aspect-square overflow-hidden bg-muted">
+                <div className="aspect-square overflow-hidden bg-muted relative">
                   <img
                     src={relatedImgErrors[item._id] ? "/placeholder-product.svg" : (item.image || "/placeholder-product.svg")}
-                    alt={item.name}
+                    alt=""
                     onError={() => setRelatedImgErrors(prev => ({ ...prev, [item._id]: true }))}
                     className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
                   />

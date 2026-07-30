@@ -93,7 +93,7 @@ const Cart = () => {
               <Card className="overflow-hidden">
                 <CardContent className="p-3 md:p-4 flex gap-3 md:gap-4">
                   <div className="w-20 h-20 md:w-24 md:h-24 rounded-md overflow-hidden bg-muted shrink-0">
-                    <img src={p.image || "/placeholder-product.svg"} alt={p.name} onError={(e) => e.target.src = "/placeholder-product.svg"} className="w-full h-full object-cover" />
+                    <img src={p.image || "/placeholder-product.svg"} alt="" onError={(e) => e.target.src = "/placeholder-product.svg"} className="w-full h-full object-cover" />
                   </div>
                   <div className="flex-1 min-w-0">
                     <div className="flex justify-between items-start gap-2">

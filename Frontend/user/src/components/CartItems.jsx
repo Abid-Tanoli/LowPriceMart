@@ -7,7 +7,7 @@ const CartItem = ({ item, onIncrease, onDecrease, onRemove }) => {
       <div className="flex items-center gap-4">
         <img
           src={item.product.image}
-          alt={item.product.name}
+          alt=""
           className="w-20 h-20 object-cover rounded"
         />
         <div>

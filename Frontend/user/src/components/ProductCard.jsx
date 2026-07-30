@@ -15,6 +15,7 @@ import { toast } from "sonner"
 
 const ProductCard = ({ _id, image, name, category, brand, price, description, countInStock, rating, numReviews, wishlisted, onWishlistChange }) => {
   const [imgError, setImgError] = useState(false)
+  const [imgLoaded, setImgLoaded] = useState(false)
   const [addAnim, setAddAnim] = useState(false)
 
   const handleCart = async (e) => {
@@ -58,11 +59,16 @@ const ProductCard = ({ _id, image, name, category, brand, price, description, co
       <Card className="group overflow-hidden transition-all duration-300 hover:shadow-card-hover w-full">
         <Link to={`/product/${_id}`}>
           <div className="relative overflow-hidden aspect-square min-h-48 bg-muted">
+            {!imgLoaded && !imgError && (
+              <div className="absolute inset-0 bg-muted animate-pulse" />
+            )}
             <img
               src={imgError ? "/placeholder-product.svg" : (image || "/placeholder-product.svg")}
-              alt={name}
-              onError={() => setImgError(true)}
-              className="object-cover w-full h-full group-hover:scale-105 transition-transform duration-500"
+              alt=""
+              onLoad={() => setImgLoaded(true)}
+              onError={() => { setImgError(true); setImgLoaded(true) }}
+              className={`object-cover w-full h-full group-hover:scale-105 transition-transform duration-500 ${imgLoaded ? "opacity-100" : "opacity-0"}`}
+              loading="lazy"
             />
             {countInStock > 0 ? (
               <Badge variant="success" className="absolute top-2 left-2">In Stock</Badge>

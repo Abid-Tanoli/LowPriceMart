@@ -102,7 +102,7 @@ const Wishlist = () => {
             >
               <img
                 src={product.image || "/placeholder-product.svg"}
-                alt={product.name}
+                alt=""
                 onError={(e) => e.target.src = "/placeholder-product.svg"}
                 className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
               />

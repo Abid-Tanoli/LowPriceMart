@@ -1,6 +1,7 @@
 import { Link, useNavigate } from "react-router-dom"
 import { useSelector, useDispatch } from "react-redux"
-import { ShoppingCart, User, LogOut, Package, Search, Menu, Heart } from "lucide-react"
+import { motion, AnimatePresence } from "framer-motion"
+import { ShoppingCart, User, LogOut, Package, Search, Menu, Heart, X } from "lucide-react"
 import { logout } from "../../hooks/auth/authSlice"
 import { useCart } from "../../context/CartContext"
 import { Button } from "../ui/button"
@@ -146,7 +147,7 @@ const Header = () => {
                     {product.image ? (
                       <img
                         src={product.image}
-                        alt={product.name}
+                        alt=""
                         className="h-full w-full object-cover"
                       />
                     ) : (
@@ -278,12 +279,20 @@ const Header = () => {
           className="md:hidden p-2"
           onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
         >
-          <Menu className="h-6 w-6" />
+          {mobileMenuOpen ? <X className="h-6 w-6" /> : <Menu className="h-6 w-6" />}
         </button>
       </div>
 
-      {mobileMenuOpen && (
-        <div className="md:hidden border-t bg-background p-4 space-y-2">
+      <AnimatePresence>
+        {mobileMenuOpen && (
+        <motion.div
+          initial={{ height: 0, opacity: 0 }}
+          animate={{ height: "auto", opacity: 1 }}
+          exit={{ height: 0, opacity: 0 }}
+          transition={{ duration: 0.2 }}
+          className="md:hidden overflow-hidden border-t bg-background"
+        >
+          <div className="p-4 space-y-2">
           <form onSubmit={handleSearch} className="flex gap-2 mb-3">
             <Input
               type="search"
@@ -328,8 +337,10 @@ const Header = () => {
           <div className="flex justify-center pt-2">
             <ThemeToggle />
           </div>
-        </div>
-      )}
+          </div>
+        </motion.div>
+        )}
+      </AnimatePresence>
     </header>
   )
 }

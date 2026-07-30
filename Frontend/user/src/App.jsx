@@ -15,6 +15,9 @@ import OrderDetails from "./pages/OrderDetails"
 import InvoicePage from "./pages/InvoicePage";
 import Wishlist from "./pages/Wishlist";
 import PaymentResult from "./pages/PaymentResult";
+import About from "./pages/About";
+import Privacy from "./pages/Privacy";
+import Contact from "./pages/Contact";
 import PrivateRoute from "./routes/PrivateRoute";
 
 const App = () => {
@@ -34,6 +37,9 @@ const App = () => {
         <Route path="/invoice/:id" element={<InvoicePage />} />
         <Route path="/wishlist" element={<PrivateRoute><Wishlist /></PrivateRoute>} />
         <Route path="/payment-result" element={<PaymentResult />} />
+        <Route path="/about" element={<About />} />
+        <Route path="/privacy" element={<Privacy />} />
+        <Route path="/contact" element={<Contact />} />
       </Route>
 
       <Route path="/login" element={<Login />} />
