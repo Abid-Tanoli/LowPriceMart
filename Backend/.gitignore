@@ -10,18 +10,33 @@ lerna-debug.log*
 node_modules
 dist
 dist-ssr
+build
 *.local
+.env.local
+.env.*.local
 
 # Editor directories and files
 .vscode/*
 !.vscode/extensions.json
 .idea
 .DS_Store
+Thumbs.db
 *.suo
 *.ntvs*
 *.njsproj
 *.sln
 *.sw?
+
+# Vercel
+.vercel
+
+# Coverage
+coverage/
+
+# E2E test artifacts
+screenshots/
+test-results/
+playwright-report/
 
 # Environment variables
 .env
