@@ -141,7 +141,7 @@ const AdminProducts = () => {
                   <TableRow key={p._id}>
                     <TableCell>
                       {p.image ? (
-                        <img src={p.image} alt="" className="h-10 w-10 rounded object-cover" />
+                        <img src={p.image} alt="" onError={(e) => e.target.style.display = "none"} className="h-10 w-10 rounded object-cover" />
                       ) : (
                         <div className="h-10 w-10 rounded bg-muted flex items-center justify-center text-xs text-muted-foreground">N/A</div>
                       )}

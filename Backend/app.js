@@ -42,7 +42,7 @@ app.use(helmet({
   contentSecurityPolicy: {
     directives: {
       defaultSrc: ["'self'"],
-      imgSrc: ["'self'", "https://res.cloudinary.com", "data:", "blob:"],
+      imgSrc: ["'self'", "https://res.cloudinary.com", "https://via.placeholder.com", "https://placehold.co", "https://example.com", "data:", "blob:"],
       fontSrc: ["'self'", "https:", "data:"],
       scriptSrc: ["'self'"],
       styleSrc: ["'self'", "'unsafe-inline'"],

@@ -227,7 +227,7 @@ const CheckoutPage = () => {
                     {cart.filter(i => i?.product).map((item) => (
                       <div key={item.product._id} className="flex items-center gap-3 text-sm">
                         <div className="w-12 h-12 rounded overflow-hidden bg-muted shrink-0">
-                          <img src={item.product.image || "/placeholder-product.svg"} alt="" className="w-full h-full object-cover" />
+                          <img src={item.product.image || "/placeholder-product.svg"} alt="" onError={(e) => e.target.src = "/placeholder-product.svg"} className="w-full h-full object-cover" />
                         </div>
                         <span className="flex-1 line-clamp-1">{item.product.name}</span>
                         <span>x{item.qty}</span>

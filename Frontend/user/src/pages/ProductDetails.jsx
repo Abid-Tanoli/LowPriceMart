@@ -32,6 +32,8 @@ const ProductDetails = () => {
   const [product, setProduct] = useState(null)
   const [loading, setLoading] = useState(true)
   const [related, setRelated] = useState([])
+  const [imgError, setImgError] = useState(false)
+  const [relatedImgErrors, setRelatedImgErrors] = useState({})
   const [isAdding, setIsAdding] = useState(false)
   const [quantity, setQuantity] = useState(1)
   const [addedFeedback, setAddedFeedback] = useState(false)
@@ -176,8 +178,9 @@ const ProductDetails = () => {
         <div className="space-y-4">
           <div className="aspect-square rounded-xl overflow-hidden border bg-muted">
             <img
-              src={product.image || "/placeholder-product.svg"}
+              src={imgError ? "/placeholder-product.svg" : (product.image || "/placeholder-product.svg")}
               alt={product.name}
+              onError={() => setImgError(true)}
               className="w-full h-full object-cover"
             />
           </div>
@@ -401,10 +404,11 @@ const ProductDetails = () => {
                 className="overflow-hidden cursor-pointer hover:shadow-lg transition-shadow group"
                 onClick={() => navigate(`/product/${item._id}`)}
               >
-                <div className="aspect-square overflow-hidden">
+                <div className="aspect-square overflow-hidden bg-muted">
                   <img
-                    src={item.image || "/placeholder-product.svg"}
+                    src={relatedImgErrors[item._id] ? "/placeholder-product.svg" : (item.image || "/placeholder-product.svg")}
                     alt={item.name}
+                    onError={() => setRelatedImgErrors(prev => ({ ...prev, [item._id]: true }))}
                     className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
                   />
                 </div>

@@ -1,5 +1,6 @@
 import { ShoppingCart, Eye, Heart, Star } from "lucide-react"
 import { Link } from "react-router-dom"
+import { useState } from "react"
 import { addToCart } from "../services/cartApi"
 import { addToWishlist, removeFromWishlist } from "../services/wishlistApi"
 import { Button } from "./ui/button"
@@ -12,6 +13,7 @@ import {
 import { toast } from "sonner"
 
 const ProductCard = ({ _id, image, name, category, brand, price, description, countInStock, rating, numReviews, wishlisted, onWishlistChange }) => {
+  const [imgError, setImgError] = useState(false)
   const handleCart = async (e) => {
     e.preventDefault()
     e.stopPropagation()
@@ -44,10 +46,11 @@ const ProductCard = ({ _id, image, name, category, brand, price, description, co
   return (
     <Card className="group overflow-hidden transition-all duration-300 hover:shadow-lg w-72">
       <Link to={`/product/${_id}`}>
-        <div className="relative overflow-hidden aspect-square">
+        <div className="relative overflow-hidden aspect-square min-h-48">
           <img
-            src={image || "/placeholder-product.svg"}
+            src={imgError ? "/placeholder-product.svg" : (image || "/placeholder-product.svg")}
             alt={name}
+            onError={() => setImgError(true)}
             className="object-cover w-full h-full group-hover:scale-105 transition-transform duration-300"
           />
           {countInStock > 0 ? (

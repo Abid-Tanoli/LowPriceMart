@@ -289,6 +289,7 @@ const Home = () => {
                       <img
                         src={item.image || "/placeholder-product.svg"}
                         alt={item.name}
+                        onError={(e) => e.target.src = "/placeholder-product.svg"}
                         className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
                       />
                     </div>
