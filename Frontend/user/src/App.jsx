@@ -1,3 +1,4 @@
+import ErrorBoundary from "./components/ErrorBoundary";
 import { Routes, Route } from "react-router-dom";
 import Home from "./pages/Index";
 import Cart from "./pages/Cart";
@@ -22,6 +23,7 @@ import PrivateRoute from "./routes/PrivateRoute";
 
 const App = () => {
   return (
+    <ErrorBoundary>
     <Routes>
       <Route element={<AppLayout />}>
         <Route path="/" element={<Home />} />
@@ -45,6 +47,7 @@ const App = () => {
       <Route path="/login" element={<Login />} />
       <Route path="/register" element={<Register />} />
     </Routes>
+    </ErrorBoundary>
   );
 };
 

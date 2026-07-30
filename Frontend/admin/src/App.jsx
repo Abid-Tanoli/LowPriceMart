@@ -1,3 +1,4 @@
+import ErrorBoundary from "./components/ErrorBoundary";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 
 import Login from "./pages/auth/Login";
@@ -14,6 +15,7 @@ import CreateProduct from "./pages/CreateProduct";
 
 const App = () => {
   return (
+    <ErrorBoundary>
     <BrowserRouter>
       <Routes>
 
@@ -32,6 +34,7 @@ const App = () => {
 
       </Routes>
     </BrowserRouter>
+    </ErrorBoundary>
   );
 };
 

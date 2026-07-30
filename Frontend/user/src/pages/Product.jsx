@@ -208,7 +208,6 @@ const Product = () => {
               )}
             </div>
           </SheetContent>
-        </Sheet>
 
         <main className="flex-1 min-w-0">
           <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-6">
@@ -315,6 +314,7 @@ const Product = () => {
             </div>
           )}
         </main>
+        </Sheet>
       </div>
     </div>
   )
