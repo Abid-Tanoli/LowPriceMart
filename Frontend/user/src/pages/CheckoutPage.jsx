@@ -119,15 +119,15 @@ const CheckoutPage = () => {
         <h1 className="text-2xl font-bold text-foreground">Checkout</h1>
       </div>
 
-      <div className="flex items-center justify-center gap-2 mb-8">
+      <div className="flex items-center justify-center gap-1 sm:gap-2 mb-8">
         {steps.map((s, i) => (
-          <div key={s.id} className="flex items-center gap-2">
+          <div key={s.id} className="flex items-center gap-1 sm:gap-2">
             <button
               onClick={() => {
                 if (step === "payment" && s.id === "shipping") setStep("shipping")
                 if (step === "review" && (s.id === "shipping" || s.id === "payment")) setStep(s.id)
               }}
-              className={`flex items-center gap-2 px-3 py-1.5 rounded-full text-sm font-medium transition ${
+              className={`flex items-center gap-1 sm:gap-2 px-2 sm:px-3 py-1.5 rounded-full text-xs sm:text-sm font-medium transition ${
                 step === s.id
                   ? "bg-primary text-primary-foreground"
                   : steps.indexOf({ id: step }) > i
@@ -135,10 +135,11 @@ const CheckoutPage = () => {
                   : "bg-muted text-muted-foreground"
               }`}
             >
-              <s.icon className="h-4 w-4" />
-              {s.label}
+              <s.icon className="h-3.5 w-3.5 sm:h-4 sm:w-4" />
+              <span className="hidden sm:inline">{s.label}</span>
+              <span className="sm:hidden">{s.label === "Shipping" ? "Ship" : s.label === "Payment" ? "Pay" : "Review"}</span>
             </button>
-            {i < steps.length - 1 && <div className="w-8 h-px bg-border" />}
+            {i < steps.length - 1 && <div className="w-4 sm:w-8 h-px bg-border" />}
           </div>
         ))}
       </div>

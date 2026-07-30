@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react"
 import { useNavigate } from "react-router-dom"
-import { Heart, Trash2, ShoppingCart, ArrowLeft } from "lucide-react"
+import { motion } from "framer-motion"
+import { Heart, ShoppingCart, Trash2, ArrowLeft, ShoppingBag } from "lucide-react"
 import { getWishlist, removeFromWishlist } from "../services/wishlistApi"
 import { addToCart } from "../services/cartApi"
 import { Button } from "../components/ui/button"
@@ -64,10 +65,12 @@ const Wishlist = () => {
   if (products.length === 0) {
     return (
       <div className="max-w-4xl mx-auto px-4 py-20 text-center">
-        <Heart className="h-16 w-16 mx-auto text-muted-foreground mb-4" />
-        <h2 className="text-2xl font-bold text-foreground mb-2">Your Wishlist is Empty</h2>
-        <p className="text-muted-foreground mb-6">Save items you love by tapping the heart icon.</p>
-        <Button asChild>
+        <motion.div initial={{ scale: 0 }} animate={{ scale: 1 }} transition={{ type: "spring", stiffness: 200 }}>
+          <Heart className="h-20 w-20 mx-auto text-muted-foreground/40 mb-6" />
+        </motion.div>
+        <h2 className="text-2xl font-bold text-foreground mb-2 font-heading">Your Wishlist is Empty</h2>
+        <p className="text-muted-foreground mb-6">Save items you love to your wishlist!</p>
+        <Button asChild size="lg">
           <a href="/product">Browse Products</a>
         </Button>
       </div>
@@ -85,8 +88,14 @@ const Wishlist = () => {
       </div>
 
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-        {products.map((product) => (
-          <Card key={product._id} className="overflow-hidden group">
+        {products.map((product, i) => (
+          <motion.div
+            key={product._id}
+            initial={{ opacity: 0, y: 15 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.3, delay: i * 0.05 }}
+          >
+          <Card className="overflow-hidden group h-full">
             <div
               className="aspect-square overflow-hidden bg-muted cursor-pointer"
               onClick={() => navigate(`/product/${product._id}`)}
@@ -130,6 +139,7 @@ const Wishlist = () => {
               </div>
             </CardContent>
           </Card>
+          </motion.div>
         ))}
       </div>
     </div>

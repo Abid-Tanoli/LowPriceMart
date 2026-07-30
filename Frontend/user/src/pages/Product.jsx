@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react"
 import { useSearchParams } from "react-router-dom"
-import { SlidersHorizontal, X } from "lucide-react"
+import { motion } from "framer-motion"
+import { SlidersHorizontal, X, SearchX } from "lucide-react"
 import ProductCard from "../components/ProductCard"
 import { getProducts } from "../services/productApi"
 import { Button } from "../components/ui/button"
@@ -8,6 +9,7 @@ import { Badge } from "../components/ui/badge"
 import { Card, CardContent } from "../components/ui/card"
 import { Skeleton } from "../components/ui/skeleton"
 import { Input } from "../components/ui/input"
+import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from "../components/ui/sheet"
 import {
   Select,
   SelectContent,
@@ -95,21 +97,15 @@ const Product = () => {
   return (
     <div className="max-w-7xl mx-auto px-4 py-8">
       <div className="flex flex-col md:flex-row gap-6">
-        <aside className={`md:w-64 shrink-0 ${showFilters ? "block" : "hidden md:block"}`}>
-          <Card>
-            <CardContent className="p-5 space-y-6">
-              <div className="flex items-center justify-between">
-                <h3 className="font-semibold flex items-center gap-2">
-                  <SlidersHorizontal className="h-4 w-4" />
-                  Filters
-                </h3>
-                <Button variant="ghost" size="sm" className="md:hidden" onClick={() => setShowFilters(false)}>
-                  <X className="h-4 w-4" />
-                </Button>
-              </div>
-
+        <aside className="hidden md:block md:w-64 shrink-0">
+          <div className="space-y-4">
+            <h3 className="font-heading font-semibold flex items-center gap-2">
+              <SlidersHorizontal className="h-4 w-4" />
+              Filters
+            </h3>
+            <div className="space-y-4">
               <div>
-                <h4 className="text-sm font-medium mb-2">Category</h4>
+                <h4 className="text-sm font-medium mb-2 text-foreground">Category</h4>
                 <div className="space-y-1">
                   <button
                     onClick={() => updateParams({ category: "" })}
@@ -134,7 +130,7 @@ const Product = () => {
               </div>
 
               <div>
-                <h4 className="text-sm font-medium mb-2">Price Range</h4>
+                <h4 className="text-sm font-medium mb-2 text-foreground">Price Range</h4>
                 <div className="space-y-1">
                   {PRICE_RANGES.map((range) => {
                     const isActive = String(range.min) === priceMin && String(range.max) === priceMax
@@ -162,17 +158,67 @@ const Product = () => {
                   Clear All Filters
                 </Button>
               )}
-            </CardContent>
-          </Card>
+            </div>
+          </div>
         </aside>
+
+        <Sheet open={showFilters} onOpenChange={setShowFilters}>
+          <SheetContent side="left" className="w-[300px] sm:w-[350px]">
+            <SheetHeader>
+              <SheetTitle>Filters</SheetTitle>
+            </SheetHeader>
+            <div className="mt-6 space-y-6">
+              <div>
+                <h4 className="text-sm font-medium mb-2 text-foreground">Category</h4>
+                <div className="space-y-1">
+                  <button onClick={() => { updateParams({ category: "" }); setShowFilters(false) }}
+                    className={`block w-full text-left px-3 py-1.5 text-sm rounded-md transition ${
+                      !categoryFilter ? "bg-primary/10 text-primary font-medium" : "hover:bg-muted text-muted-foreground"
+                    }`}>All Categories</button>
+                  {categories.map((cat) => (
+                    <button key={cat} onClick={() => { updateParams({ category: cat }); setShowFilters(false) }}
+                      className={`block w-full text-left px-3 py-1.5 text-sm rounded-md transition ${
+                        categoryFilter === cat ? "bg-primary/10 text-primary font-medium" : "hover:bg-muted text-muted-foreground"
+                      }`}>{cat}</button>
+                  ))}
+                </div>
+              </div>
+              <div>
+                <h4 className="text-sm font-medium mb-2 text-foreground">Price Range</h4>
+                <div className="space-y-1">
+                  {PRICE_RANGES.map((range) => {
+                    const isActive = String(range.min) === priceMin && String(range.max) === priceMax
+                    return (
+                      <button key={range.label}
+                        onClick={() => {
+                          isActive ? updateParams({ priceMin: "", priceMax: "" }) : updateParams({ priceMin: String(range.min), priceMax: range.max === Infinity ? "" : String(range.max) })
+                          setShowFilters(false)
+                        }}
+                        className={`block w-full text-left px-3 py-1.5 text-sm rounded-md transition ${
+                          isActive ? "bg-primary/10 text-primary font-medium" : "hover:bg-muted text-muted-foreground"
+                        }`}>{range.label}</button>
+                    )
+                  })}
+                </div>
+              </div>
+              {hasActiveFilters && (
+                <Button variant="outline" size="sm" className="w-full" onClick={() => { clearFilters(); setShowFilters(false) }}>
+                  Clear All Filters
+                </Button>
+              )}
+            </div>
+          </SheetContent>
+        </Sheet>
 
         <main className="flex-1 min-w-0">
           <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-6">
             <div className="flex items-center gap-2">
-              <Button variant="outline" size="sm" className="md:hidden" onClick={() => setShowFilters(true)}>
-                <SlidersHorizontal className="h-4 w-4 mr-1" />
-                Filters
-              </Button>
+              <SheetTrigger asChild>
+                <Button variant="outline" size="sm" className="md:hidden">
+                  <SlidersHorizontal className="h-4 w-4 mr-1" />
+                  Filters
+                </Button>
+              </SheetTrigger>
               <div>
                 {searchQuery && (
                   <Badge variant="secondary" className="mr-2">
@@ -200,11 +246,11 @@ const Product = () => {
           </div>
 
           {loading ? (
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+            <div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-3 md:gap-6">
               {Array.from({ length: 8 }).map((_, i) => (
                 <Card key={i} className="overflow-hidden">
                   <Skeleton className="aspect-square rounded-none" />
-                  <CardContent className="p-4 space-y-2">
+                  <CardContent className="p-3 md:p-4 space-y-2">
                     <Skeleton className="h-3 w-20" />
                     <Skeleton className="h-5 w-full" />
                     <Skeleton className="h-4 w-24" />
@@ -214,24 +260,31 @@ const Product = () => {
             </div>
           ) : products.length > 0 ? (
             <>
-              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-                {products.map((product) => (
-                  <ProductCard
+              <div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-3 md:gap-6">
+                {products.map((product, i) => (
+                  <motion.div
                     key={product._id}
-                    _id={product._id}
-                    image={product.image}
-                    name={product.name}
-                    category={product.category}
-                    brand={product.brand}
-                    price={product.price}
-                    description={product.description}
-                    countInStock={product.stock}
-                  />
+                    initial={{ opacity: 0, y: 15 }}
+                    whileInView={{ opacity: 1, y: 0 }}
+                    viewport={{ once: true }}
+                    transition={{ duration: 0.3, delay: i * 0.03 }}
+                  >
+                    <ProductCard
+                      _id={product._id}
+                      image={product.image}
+                      name={product.name}
+                      category={product.category}
+                      brand={product.brand}
+                      price={product.price}
+                      description={product.description}
+                      countInStock={product.stock}
+                    />
+                  </motion.div>
                 ))}
               </div>
 
               {totalPages > 1 && (
-                <div className="flex justify-center items-center gap-2 mt-10">
+                <div className="flex justify-center items-center gap-2 mt-8 md:mt-10">
                   <Button variant="outline" size="sm" disabled={currentPage <= 1} onClick={() => setCurrentPage((p) => p - 1)}>
                     Previous
                   </Button>
@@ -252,11 +305,12 @@ const Product = () => {
               )}
             </>
           ) : (
-            <div className="text-center py-20">
-              <p className="text-lg text-muted-foreground">No products found.</p>
-              <p className="text-sm text-muted-foreground mt-1">Try adjusting your filters or search terms.</p>
+            <div className="flex flex-col items-center justify-center py-20 text-center">
+              <SearchX className="h-16 w-16 text-muted-foreground/50 mb-4" />
+              <p className="text-lg font-medium text-foreground">No products found</p>
+              <p className="text-sm text-muted-foreground mt-1 max-w-xs">Try adjusting your filters or search terms.</p>
               {hasActiveFilters && (
-                <Button variant="link" onClick={clearFilters}>Clear filters</Button>
+                <Button variant="outline" className="mt-4" onClick={clearFilters}>Clear All Filters</Button>
               )}
             </div>
           )}

@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react"
 import { useNavigate } from "react-router-dom"
+import { motion } from "framer-motion"
 import { Trash2, ShoppingBag, ArrowLeft, Minus, Plus } from "lucide-react"
 import { useCart } from "../context/CartContext"
 import { useQtyTotals } from "../context/QtyAndTotalsContext"
@@ -47,10 +48,12 @@ const Cart = () => {
   if (!cart || cart.length === 0) {
     return (
       <div className="max-w-4xl mx-auto px-4 py-20 text-center">
-        <ShoppingBag className="h-16 w-16 mx-auto text-muted-foreground mb-4" />
-        <h2 className="text-2xl font-bold text-foreground mb-2">Your Cart is Empty</h2>
+        <motion.div initial={{ scale: 0 }} animate={{ scale: 1 }} transition={{ type: "spring", stiffness: 200 }}>
+          <ShoppingBag className="h-20 w-20 mx-auto text-muted-foreground/40 mb-6" />
+        </motion.div>
+        <h2 className="text-2xl font-bold text-foreground mb-2 font-heading">Your Cart is Empty</h2>
         <p className="text-muted-foreground mb-6">Looks like you haven't added anything yet.</p>
-        <Button asChild>
+        <Button asChild size="lg">
           <a href="/product">Start Shopping</a>
         </Button>
       </div>
@@ -71,19 +74,25 @@ const Cart = () => {
         <Button variant="ghost" size="icon" onClick={() => navigate(-1)}>
           <ArrowLeft className="h-5 w-5" />
         </Button>
-        <h1 className="text-2xl font-bold text-foreground">Shopping Cart</h1>
+        <h1 className="text-2xl font-bold text-foreground font-heading">Shopping Cart</h1>
         <span className="text-sm text-muted-foreground">({cart.length} item{cart.length > 1 ? "s" : ""})</span>
       </div>
 
       <div className="grid lg:grid-cols-3 gap-8">
         <div className="lg:col-span-2 space-y-4">
-          {cart.map((item) => {
+          {cart.map((item, i) => {
             if (!item?.product) return null
             const p = item.product
             return (
-              <Card key={p._id} className="overflow-hidden">
-                <CardContent className="p-4 flex gap-4">
-                  <div className="w-24 h-24 rounded-md overflow-hidden bg-muted shrink-0">
+              <motion.div
+                key={p._id}
+                initial={{ opacity: 0, x: -20 }}
+                animate={{ opacity: 1, x: 0 }}
+                transition={{ duration: 0.3, delay: i * 0.05 }}
+              >
+              <Card className="overflow-hidden">
+                <CardContent className="p-3 md:p-4 flex gap-3 md:gap-4">
+                  <div className="w-20 h-20 md:w-24 md:h-24 rounded-md overflow-hidden bg-muted shrink-0">
                     <img src={p.image || "/placeholder-product.svg"} alt={p.name} onError={(e) => e.target.src = "/placeholder-product.svg"} className="w-full h-full object-cover" />
                   </div>
                   <div className="flex-1 min-w-0">
@@ -130,6 +139,7 @@ const Cart = () => {
                   </div>
                 </CardContent>
               </Card>
+              </motion.div>
             )
           })}
         </div>
